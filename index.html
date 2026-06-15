@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zpektra — Spotify Audio Visualizer</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <canvas id="stage"></canvas>
+
+    <!-- Achievement / welcome screen (entry point) -->
+    <section id="screen-welcome" class="screen">
+      <div class="welcome-card">
+        <div class="ach-badge"><span class="ach-dot"></span> ACHIEVEMENT UNLOCKED</div>
+        <div class="trophy">🏆</div>
+        <h1 class="welcome-title">You found a hidden project</h1>
+        <p class="welcome-sub">
+          <b>Zpektra</b> is a real-time music visualizer built with three.js.
+          Connect Spotify, route in your audio, and watch reactive 3D scenes move
+          to whatever you're playing — drag to rotate, recolor it, make it yours.
+        </p>
+        <div class="badges-row">
+          <span class="chip">three.js</span>
+          <span class="chip">WebGL · GLSL</span>
+          <span class="chip">Web Audio FFT</span>
+          <span class="chip">Spotify</span>
+        </div>
+        <button id="btn-enter-welcome" class="primary big">Enter Zpektra →</button>
+        <a class="back-link" href="https://zaidwajid.dev/">← back to zaidwajid.dev</a>
+      </div>
+    </section>
+
+    <!-- Login screen -->
+    <section id="screen-login" class="screen hidden">
+      <div class="panel">
+        <button class="back-top" id="btn-login-back">← Back</button>
+        <h1>Zpektra</h1>
+        <p class="tagline">Real-time visuals that move with your music.</p>
+        <button id="btn-login" class="primary">Connect Spotify</button>
+        <p class="fineprint">Requires Spotify Premium. Best in Chrome or Edge.</p>
+      </div>
+    </section>
+
+    <!-- Visualizer picker -->
+    <section id="screen-picker" class="screen hidden">
+      <div class="panel wide">
+        <button class="back-top" id="btn-picker-back">← Back</button>
+        <h2>Choose a visualizer</h2>
+        <div id="picker-grid" class="grid"></div>
+        <button id="btn-logout" class="ghost">Log out</button>
+      </div>
+    </section>
+
+    <!-- Centered prompt when audio isn't connected yet -->
+    <div id="audio-hint" class="hidden">
+      <div class="hint-card">
+        <div class="hint-title">Connect an audio source to begin</div>
+        <div class="hint-sub">
+          <b>Best (direct from Spotify):</b> install a free virtual audio cable
+          (Windows: VB-Audio Cable or VoiceMeeter), set it as Spotify's output (or
+          your system output), then choose it as the input below. Clean digital
+          audio, no screen share.
+        </div>
+        <button id="btn-enable-input" class="primary">Enable audio input</button>
+        <div class="hint-or">— or —</div>
+        <button id="btn-share-audio-main" class="ghost">Use screen / tab audio</button>
+        <div class="hint-fine">
+          No motion until real sound is detected. Switch input anytime from the bar
+          below. Press <b>D</b> for live meters.
+        </div>
+      </div>
+    </div>
+
+    <!-- HUD shown over a running visualizer -->
+    <div id="hud" class="hidden">
+      <!-- horizontal visualizer dock (switch live, anytime) -->
+      <div id="vis-dock"></div>
+
+      <div class="hud-bar">
+        <div class="hud-track">
+          <img id="hud-art" alt="" />
+          <div>
+            <div id="hud-title">—</div>
+            <div id="hud-artist" class="muted">—</div>
+          </div>
+        </div>
+        <div class="hud-actions">
+          <span id="hud-audio-state" class="badge">audio: off</span>
+          <select id="audio-source" class="src-select" title="Audio input device">
+            <option value="">Audio input…</option>
+          </select>
+          <button id="btn-share-audio" class="ghost" title="Use screen/tab audio instead">Screen audio</button>
+          <button id="btn-colors" class="ghost">Colors</button>
+          <button id="btn-home" class="ghost" title="Back to start">⌂ Home</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Color settings panel -->
+    <div id="colors-panel" class="hidden">
+      <div class="cp-row">
+        <label for="color-mode">Color mode</label>
+        <select id="color-mode" class="src-select">
+          <option value="album">Album art (default)</option>
+          <option value="custom">Custom</option>
+          <option value="cycle">Cycle (auto)</option>
+        </select>
+      </div>
+      <div class="cp-row cp-custom">
+        <label>Primary</label>
+        <input type="color" id="color-primary" value="#22d3ee" />
+        <input type="text" id="hex-primary" class="hex" value="#22d3ee" maxlength="7" />
+      </div>
+      <div class="cp-row cp-custom">
+        <label>Secondary</label>
+        <input type="color" id="color-secondary" value="#2dd4bf" />
+        <input type="text" id="hex-secondary" class="hex" value="#2dd4bf" maxlength="7" />
+      </div>
+      <div class="cp-row cp-cycle">
+        <label for="cycle-speed">Cycle speed</label>
+        <input type="range" id="cycle-speed" min="0" max="100" value="35" />
+      </div>
+    </div>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
