@@ -1,7 +1,3 @@
-// Spotify auth via Authorization Code + PKCE — runs entirely in the browser with
-// NO backend and NO client secret. Handles login redirect, code exchange, token
-// storage and silent refresh.
-
 import { SPOTIFY_CLIENT_ID, REDIRECT_URI, SCOPES } from '../config.js';
 
 const AUTHORIZE = 'https://accounts.spotify.com/authorize';
@@ -12,7 +8,6 @@ const PKCE_KEY = 'zpektra.pkce';
 let session = { access_token: null, refresh_token: null, expires_at: 0 };
 let refreshTimer = null;
 
-/* ---------- storage ---------- */
 function save() {
   localStorage.setItem(KEY, JSON.stringify(session));
 }
@@ -21,11 +16,9 @@ function load() {
     const raw = localStorage.getItem(KEY);
     if (raw) session = { ...session, ...JSON.parse(raw) };
   } catch {
-    /* ignore */
-  }
+      }
 }
 
-/* ---------- PKCE helpers ---------- */
 function randomString(len) {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
   const arr = new Uint8Array(len);
@@ -41,7 +34,6 @@ async function challengeFromVerifier(verifier) {
   return base64url(digest);
 }
 
-/* ---------- token requests ---------- */
 function applyToken(data) {
   session.access_token = data.access_token;
   if (data.refresh_token) session.refresh_token = data.refresh_token;
@@ -96,7 +88,7 @@ function scheduleRefresh() {
 }
 
 export const Session = {
-  // Returns { valid, justLoggedIn }. Call once on startup.
+
   async init() {
     load();
     const params = new URLSearchParams(location.search);
@@ -115,10 +107,8 @@ export const Session = {
       try {
         stored = JSON.parse(localStorage.getItem(PKCE_KEY)) || {};
       } catch {
-        /* ignore */
       }
       localStorage.removeItem(PKCE_KEY);
-      // clean ?code=... from the URL right away
       history.replaceState(null, '', import.meta.env.BASE_URL);
       if (stored.state && stored.state === state && stored.verifier) {
         try {

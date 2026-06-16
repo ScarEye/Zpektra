@@ -1,7 +1,3 @@
-// Spectrum Ring: 96 glowing bars in a circle (heights from the spectrum), a
-// pulsing wireframe core that scales with bass, and a ground reflection feel via
-// additive blending. Rotation/pulse are gated by audio activity.
-
 import * as THREE from 'three';
 import { Visualizer } from './base.js';
 
@@ -31,7 +27,6 @@ export class Bars extends Visualizer {
       this.bars.push(mesh);
     }
 
-    // Reactive wireframe core.
     this.core = new THREE.Mesh(
       new THREE.IcosahedronGeometry(1.4, 1),
       new THREE.MeshBasicMaterial({
@@ -43,7 +38,6 @@ export class Bars extends Visualizer {
     );
     this.group.add(this.core);
 
-    // Inner glow sphere.
     this.glow = new THREE.Mesh(
       new THREE.SphereGeometry(0.6, 24, 24),
       new THREE.MeshBasicMaterial({
@@ -67,21 +61,20 @@ export class Bars extends Visualizer {
 
     const half = this.count / 2;
     for (let i = 0; i < this.count; i++) {
-      // mirror low->high->low around the ring so all frequencies are visible
+
       const si = i < half ? i : this.count - 1 - i;
       const specIdx = Math.floor((si / half) * (spec.length - 1));
       const v = spec[specIdx];
       const h = 0.25 + v * 10 * (0.3 + 0.7 * a);
       const m = this.bars[i];
       m.scale.y += (h - m.scale.y) * 0.5;
-      // color by FREQUENCY position: low = primary, high = secondary
+
       const freqT = si / half;
       const c = this.palette.primary.clone().lerp(this.palette.secondary, freqT);
       m.material.color.copy(c);
       m.material.opacity = 0.4 + 0.6 * a;
     }
 
-    // core reacts to bass + beat
     const s = 1 + reactor.bass * 0.8 + reactor.beat * 0.5;
     this.core.scale.setScalar(s);
     this.core.rotation.x += dt * 0.3 * a;

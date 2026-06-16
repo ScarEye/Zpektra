@@ -1,12 +1,9 @@
-// Common lifecycle for visualizers. Each visualizer extends this and implements
-// build(), frame(reactor, dt), and (optionally) onPalette(colors).
-
 import * as THREE from 'three';
 
 export class Visualizer {
   constructor(renderer) {
     this.renderer = renderer;
-    this.interactive = false; // 3D visualizers set true -> mouse orbit enabled
+    this.interactive = false;
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
     this.camera.position.z = 8;
@@ -17,7 +14,6 @@ export class Visualizer {
     };
   }
 
-  // Subclasses override.
   build() {}
   frame(_reactor, _dt) {}
   onPalette(_palette) {}

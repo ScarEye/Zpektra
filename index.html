@@ -9,7 +9,6 @@
   <body>
     <canvas id="stage"></canvas>
 
-    <!-- Achievement / welcome screen (entry point) -->
     <section id="screen-welcome" class="screen">
       <div class="welcome-card">
         <div class="ach-badge"><span class="ach-dot"></span> ACHIEVEMENT UNLOCKED</div>
@@ -31,7 +30,6 @@
       </div>
     </section>
 
-    <!-- Login screen -->
     <section id="screen-login" class="screen hidden">
       <div class="panel">
         <button class="back-top" id="btn-login-back">← Back</button>
@@ -42,7 +40,6 @@
       </div>
     </section>
 
-    <!-- Visualizer picker -->
     <section id="screen-picker" class="screen hidden">
       <div class="panel wide">
         <button class="back-top" id="btn-picker-back">← Back</button>
@@ -52,7 +49,6 @@
       </div>
     </section>
 
-    <!-- Centered prompt when audio isn't connected yet -->
     <div id="audio-hint" class="hidden">
       <div class="hint-card">
         <div class="hint-title">Connect an audio source to begin</div>
@@ -72,9 +68,7 @@
       </div>
     </div>
 
-    <!-- HUD shown over a running visualizer -->
     <div id="hud" class="hidden">
-      <!-- horizontal visualizer dock (switch live, anytime) -->
       <div id="vis-dock"></div>
 
       <div class="hud-bar">
@@ -91,16 +85,17 @@
             <option value="">Audio input…</option>
           </select>
           <button id="btn-share-audio" class="ghost" title="Use screen/tab audio instead">Screen audio</button>
+          <button id="btn-mesh-mode" class="ghost hidden" title="Toggle grid / dots (M)">▦ Grid</button>
           <button id="btn-colors" class="ghost">Colors</button>
           <button id="btn-home" class="ghost" title="Back to start">⌂ Home</button>
         </div>
       </div>
     </div>
 
-    <!-- Color settings panel -->
     <div id="colors-panel" class="hidden">
+      <div class="cp-head">Colors</div>
       <div class="cp-row">
-        <label for="color-mode">Color mode</label>
+        <label for="color-mode">Mode</label>
         <select id="color-mode" class="src-select">
           <option value="album">Album art (default)</option>
           <option value="custom">Custom</option>
@@ -120,6 +115,12 @@
       <div class="cp-row cp-cycle">
         <label for="cycle-speed">Cycle speed</label>
         <input type="range" id="cycle-speed" min="0" max="100" value="35" />
+      </div>
+      <div class="cp-sep"></div>
+      <div class="cp-row">
+        <label for="color-intensity">Intensity</label>
+        <input type="range" id="color-intensity" min="0" max="250" value="100" />
+        <span id="intensity-val" class="cp-val">1.0×</span>
       </div>
     </div>
 

@@ -1,6 +1,3 @@
-// Extracts a small color palette from an album-art image URL by sampling pixels
-// on a tiny offscreen canvas and picking dominant + contrasting colors.
-
 import * as THREE from 'three';
 
 function rgbToHsl(r, g, b) {
@@ -37,13 +34,12 @@ export async function paletteFromImage(url) {
     ctx.drawImage(img, 0, 0, size, size);
     const { data } = ctx.getImageData(0, 0, size, size);
 
-    // Pick the most saturated bright color and a contrasting one.
     let best = null, bestScore = -1;
     let second = null, secondScore = -1;
     for (let i = 0; i < data.length; i += 4) {
       const r = data[i], g = data[i + 1], b = data[i + 2];
       const [h, s, l] = rgbToHsl(r, g, b);
-      if (l < 0.15 || l > 0.92) continue; // skip near-black/white
+      if (l < 0.15 || l > 0.92) continue;
       const score = s * (1 - Math.abs(l - 0.55));
       if (score > bestScore) {
         secondScore = bestScore; second = best;
@@ -60,7 +56,7 @@ export async function paletteFromImage(url) {
     if (second) {
       secondary = new THREE.Color(second.r / 255, second.g / 255, second.b / 255);
     } else {
-      // rotate hue for contrast
+
       const c = primary.clone();
       const hsl = {};
       c.getHSL(hsl);
@@ -77,7 +73,7 @@ export async function paletteFromImage(url) {
 function loadImage(url) {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.crossOrigin = 'anonymous'; // Spotify CDN serves CORS headers
+    img.crossOrigin = 'anonymous';
     img.onload = () => resolve(img);
     img.onerror = reject;
     img.src = url;

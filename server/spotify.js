@@ -1,10 +1,7 @@
-// Thin proxy for Spotify Web API calls that need the user's access token.
-// The token is passed from the client in the Authorization header.
-
 const API = 'https://api.spotify.com/v1';
 
 export function registerSpotifyRoutes(app) {
-  // Currently playing track (track, progress, duration, album art).
+
   app.get('/api/now-playing', async (req, res) => {
     const auth = req.headers.authorization;
     if (!auth) return res.status(401).json({ error: 'missing token' });
@@ -33,7 +30,6 @@ export function registerSpotifyRoutes(app) {
     }
   });
 
-  // Transfer playback to the Web Playback SDK device created in the browser.
   app.put('/api/transfer', async (req, res) => {
     const auth = req.headers.authorization;
     const device_id = req.body?.device_id;

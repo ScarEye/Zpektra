@@ -1,8 +1,3 @@
-// App bootstrap: wires screens, auth, now-playing metadata, audio capture, and
-// the engine. NOTE: we intentionally do NOT use the Web Playback SDK, so your
-// music keeps playing wherever you started it (desktop app / phone). We only
-// READ what's playing for metadata and visualize the captured audio.
-
 import { Session } from './auth/session.js';
 import { NowPlaying } from './spotify/nowplaying.js';
 import { Capture } from './audio/capture.js';
@@ -32,7 +27,7 @@ function show(name) {
   screens.login.classList.toggle('hidden', name !== 'login');
   screens.picker.classList.toggle('hidden', name !== 'picker');
   hud.classList.toggle('hidden', name !== 'visualizer');
-  // Prompt to connect audio whenever we're on a visualizer but not capturing.
+
   const needAudio = name === 'visualizer' && !Capture.isActive();
   audioHint.classList.toggle('hidden', !needAudio);
 }
@@ -55,7 +50,7 @@ async function enterApp() {
       updateHud(track, isPlaying);
       if (changed && track?.art) {
         const palette = await paletteFromImage(track.art);
-        engine.colors.setAlbum(palette); // applied automatically when in album mode
+        engine.colors.setAlbum(palette);
       }
     });
 
@@ -64,21 +59,28 @@ async function enterApp() {
     appReady = true;
   }
 
-  // Resume the running visualizer if there is one, else show the chooser.
   if (currentVisId) show('visualizer');
   else show('picker');
 }
 
-// Switch to a visualizer (used by both the picker grid and the bottom dock).
+function updateMeshModeBtn() {
+  const btn = el('btn-mesh-mode');
+  if (!btn) return;
+  const supported = engine && engine.supportsMeshMode();
+  btn.classList.toggle('hidden', !supported);
+  if (supported) {
+    btn.textContent = engine.meshMode === 'dots' ? '⣿ Dots' : '▦ Grid';
+  }
+}
+
 async function selectVisualizer(id) {
   currentVisId = id;
   engine.setVisualizer(id);
   engine.start();
   if (setDockActive) setDockActive(id);
+  updateMeshModeBtn();
   show('visualizer');
 
-  // If audio permission was already granted earlier, auto-resume the saved input
-  // device so the user doesn't have to re-enable each time.
   if (!Capture.isActive()) {
     const inputs = await populateDevices(false);
     const last = localStorage.getItem(LAST_DEVICE_KEY);
@@ -111,7 +113,6 @@ function onCaptureEnded() {
   refreshAudioHint();
 }
 
-// Fill the device dropdown. If withPermission, prompt once so labels appear.
 async function populateDevices(withPermission) {
   try {
     if (withPermission) await Capture.requestPermission();
@@ -150,7 +151,6 @@ async function useDevice(deviceId) {
   }
 }
 
-// "Enable audio input": get permission, list devices, start the saved/first one.
 async function enableInput() {
   const inputs = await populateDevices(true);
   if (!inputs.length) {
@@ -189,17 +189,20 @@ function setupColors() {
   const cs = el('color-secondary');
   const hs = el('hex-secondary');
   const speed = el('cycle-speed');
+  const intensity = el('color-intensity');
+  const intensityVal = el('intensity-val');
+  const colorsBtn = el('btn-colors');
 
   let saved = {};
   try {
     saved = JSON.parse(localStorage.getItem(COLOR_KEY)) || {};
   } catch {
-    /* ignore */
-  }
+      }
   if (saved.mode) modeSel.value = saved.mode;
   if (saved.primary) { cp.value = saved.primary; hp.value = saved.primary; }
   if (saved.secondary) { cs.value = saved.secondary; hs.value = saved.secondary; }
   if (saved.speed != null) speed.value = saved.speed;
+  if (saved.intensity != null) intensity.value = saved.intensity;
 
   const persist = () =>
     localStorage.setItem(
@@ -209,8 +212,15 @@ function setupColors() {
         primary: cp.value,
         secondary: cs.value,
         speed: speed.value,
+        intensity: intensity.value,
       })
     );
+
+  function applyIntensity() {
+    const k = Number(intensity.value) / 100;
+    engine.colors.setIntensity(k);
+    intensityVal.textContent = k.toFixed(1) + '×';
+  }
 
   function applyMode() {
     const m = modeSel.value;
@@ -231,13 +241,32 @@ function setupColors() {
     persist();
   }
 
-  // seed controller from current control values
   engine.colors.setCustomPrimary(cp.value);
   engine.colors.setCustomSecondary(cs.value);
   engine.colors.setCycleSpeed((Number(speed.value) / 100) * 1.2);
+  applyIntensity();
   applyMode();
 
-  el('btn-colors').addEventListener('click', () => panel.classList.toggle('hidden'));
+  function openPanel() {
+    panel.classList.remove('hidden');
+    colorsBtn.classList.add('active');
+  }
+  function closePanel() {
+    panel.classList.add('hidden');
+    colorsBtn.classList.remove('active');
+  }
+  colorsBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    panel.classList.contains('hidden') ? openPanel() : closePanel();
+  });
+  panel.addEventListener('click', (e) => e.stopPropagation());
+  document.addEventListener('click', () => {
+    if (!panel.classList.contains('hidden')) closePanel();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !panel.classList.contains('hidden')) closePanel();
+  });
+
   modeSel.addEventListener('change', applyMode);
 
   cp.addEventListener('input', () => { hp.value = cp.value; switchToCustom(); applyCustom(); });
@@ -252,6 +281,7 @@ function setupColors() {
     engine.colors.setCycleSpeed((Number(speed.value) / 100) * 1.2);
     persist();
   });
+  intensity.addEventListener('input', () => { applyIntensity(); persist(); });
 }
 
 function wireButtons() {
@@ -267,10 +297,24 @@ function wireButtons() {
   el('btn-share-audio').addEventListener('click', shareScreenAudio);
   el('btn-share-audio-main').addEventListener('click', shareScreenAudio);
   el('btn-enable-input').addEventListener('click', enableInput);
+
+  el('btn-mesh-mode').addEventListener('click', () => {
+    if (!engine || !engine.supportsMeshMode()) return;
+    engine.toggleMeshMode();
+    updateMeshModeBtn();
+  });
+  document.addEventListener('keydown', (e) => {
+    if ((e.key === 'm' || e.key === 'M') && engine && engine.supportsMeshMode()) {
+      const tag = (e.target && e.target.tagName) || '';
+      if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+      engine.toggleMeshMode();
+      updateMeshModeBtn();
+    }
+  });
   sourceSelect.addEventListener('change', () => {
     if (sourceSelect.value) useDevice(sourceSelect.value);
   });
-  // Back navigation
+
   el('btn-login-back').addEventListener('click', () => show('welcome'));
   el('btn-picker-back').addEventListener('click', () => show('welcome'));
   el('btn-home').addEventListener('click', () => show('welcome'));
@@ -279,8 +323,7 @@ function wireButtons() {
 async function main() {
   wireButtons();
   const { justLoggedIn } = await Session.init();
-  // If we just came back from the Spotify login redirect, go straight in;
-  // otherwise start at the achievement / welcome screen.
+
   if (justLoggedIn) enterApp();
   else show('welcome');
 }

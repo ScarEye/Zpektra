@@ -1,16 +1,8 @@
-// Audio Blob: an icosphere displaced by three independent noise octaves, each
-// driven by a different part of the music:
-//   - bass     -> big slow inflation/deflation (the "breathing")
-//   - vocal/mid -> medium ripples across the surface (melody / lyrics)
-//   - presence/brilliance -> fine spikes (cymbals / consonants / shimmer)
-//   - beat     -> momentary shockwave
-// The autonomous drift is tiny, so what you see is the music, in real time.
-
 import * as THREE from 'three';
 import { Visualizer } from './base.js';
 import { noiseGLSL } from './glsl-noise.js';
 
-const vert = /* glsl */ `
+const vert =  `
   uniform float uClock;
   uniform float uBass;
   uniform float uMid;
@@ -26,11 +18,8 @@ const vert = /* glsl */ `
   void main(){
     vec3 n = normalize(normal);
 
-    // Octave 1: low frequency, large slow lobes -> bass
     float low = fbm(position*0.9 + vec3(0.0,0.0,uClock*0.25));
-    // Octave 2: medium ripples -> mids / vocals
     float midN = snoise(position*2.2 + uClock*0.6);
-    // Octave 3: fine spikes -> highs
     float hi = snoise(position*(5.0 + uHigh*6.0) + uClock*1.2);
 
     float disp = low*(0.35 + uBass*2.4)
@@ -48,7 +37,7 @@ const vert = /* glsl */ `
   }
 `;
 
-const frag = /* glsl */ `
+const frag =  `
   precision highp float;
   uniform vec3 uColorA;
   uniform vec3 uColorB;
@@ -104,7 +93,7 @@ export class Blob extends Visualizer {
 
   frame(reactor, dt) {
     const b = reactor.bands;
-    // motion is driven ONLY by audio activity -> fully stops on silence
+
     this.clock += dt * (0.4 + reactor.energy * 2.5) * reactor.activity;
     const u = this.uniforms;
     u.uClock.value = this.clock;
@@ -113,7 +102,7 @@ export class Blob extends Visualizer {
     u.uHigh.value = (b.presence + b.brilliance + b.air) / 3;
     u.uBeat.value = reactor.beat;
     u.uAct.value = reactor.activity;
-    // camera orbit (engine) handles rotation; keep only a subtle scale pulse
+
     this.halo.scale.setScalar(1 + reactor.beat * 0.15);
   }
 

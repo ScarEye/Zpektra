@@ -1,13 +1,8 @@
-// Initializes the Spotify Web Playback SDK as a browser device and transfers
-// playback to it. Requires Spotify Premium.
-
 import { Session } from '../auth/session.js';
 
 let player = null;
 let deviceId = null;
 
-// The SDK ready hook is defined in index.html before the SDK script loads, which
-// resolves window.zpektraSdkReady. Fall back gracefully if it's already loaded.
 function whenSdkReady() {
   if (window.Spotify) return Promise.resolve();
   return window.zpektraSdkReady || Promise.resolve();
@@ -47,7 +42,6 @@ export const Player = {
     return ready;
   },
 
-  // Move active playback to this browser device so a track will play here.
   async transferHere() {
     if (!deviceId) return;
     try {

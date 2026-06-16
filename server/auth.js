@@ -3,8 +3,6 @@ import crypto from 'node:crypto';
 const SPOTIFY_AUTH = 'https://accounts.spotify.com/authorize';
 const SPOTIFY_TOKEN = 'https://accounts.spotify.com/api/token';
 
-// Scopes: streaming + read/modify playback are required for the Web Playback SDK
-// and for reading the currently playing track.
 const SCOPES = [
   'streaming',
   'user-read-email',
@@ -14,7 +12,6 @@ const SCOPES = [
   'user-read-currently-playing',
 ].join(' ');
 
-// In-memory state store (fine for local dev / single user).
 const pendingStates = new Set();
 
 function basicAuthHeader() {
@@ -24,7 +21,7 @@ function basicAuthHeader() {
 }
 
 export function registerAuthRoutes(app) {
-  // Step 1: send the user to Spotify's consent page.
+
   app.get('/auth/login', (_req, res) => {
     const state = crypto.randomBytes(16).toString('hex');
     pendingStates.add(state);
@@ -38,7 +35,6 @@ export function registerAuthRoutes(app) {
     res.redirect(`${SPOTIFY_AUTH}?${params.toString()}`);
   });
 
-  // Step 2: Spotify redirects back here with a code; exchange it for tokens.
   app.get('/auth/callback', async (req, res) => {
     const { code, state, error } = req.query;
     const clientOrigin = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
@@ -67,7 +63,7 @@ export function registerAuthRoutes(app) {
       if (!r.ok) {
         return res.redirect(`${clientOrigin}/#error=${encodeURIComponent(data.error || 'token_exchange_failed')}`);
       }
-      // Hand tokens back to the SPA via the URL fragment (not sent to servers/logs).
+
       const frag = new URLSearchParams({
         access_token: data.access_token,
         refresh_token: data.refresh_token || '',
@@ -80,7 +76,6 @@ export function registerAuthRoutes(app) {
     }
   });
 
-  // Step 3: refresh an expired access token.
   app.post('/auth/refresh', async (req, res) => {
     const refresh_token = req.body?.refresh_token;
     if (!refresh_token) return res.status(400).json({ error: 'missing refresh_token' });
@@ -96,7 +91,7 @@ export function registerAuthRoutes(app) {
       });
       const data = await r.json();
       if (!r.ok) return res.status(r.status).json(data);
-      // Spotify may or may not return a new refresh_token.
+
       res.json({
         access_token: data.access_token,
         expires_in: data.expires_in,

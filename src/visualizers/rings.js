@@ -1,7 +1,3 @@
-// Frequency Rings: eight concentric glowing torus rings, one per frequency band
-// (inner = sub-bass, outer = air). Each ring's thickness, lift and brightness
-// react to its band; beats nudge the whole stack. Rotatable / zoomable.
-
 import * as THREE from 'three';
 import { Visualizer } from './base.js';
 import { BAND_NAMES } from '../audio/analyser.js';
@@ -24,12 +20,11 @@ export class Rings extends Visualizer {
         opacity: 0.5,
       });
       const mesh = new THREE.Mesh(geo, mat);
-      mesh.rotation.x = Math.PI / 2; // lay flat like ripples on water
+      mesh.rotation.x = Math.PI / 2;
       this.group.add(mesh);
       this.rings.push(mesh);
     }
 
-    // central glow
     this.core = new THREE.Mesh(
       new THREE.SphereGeometry(0.5, 24, 24),
       new THREE.MeshBasicMaterial({
@@ -41,7 +36,7 @@ export class Rings extends Visualizer {
     );
     this.group.add(this.core);
 
-    this.group.rotation.x = -0.5; // slight tilt for depth
+    this.group.rotation.x = -0.5;
     this.camera.position.set(0, 3, 11);
     this.camera.lookAt(0, 0, 0);
   }
@@ -51,7 +46,7 @@ export class Rings extends Visualizer {
     BAND_NAMES.forEach((name, i) => {
       const v = reactor.bands[name] || 0;
       const m = this.rings[i];
-      // lift each ring on its band, scale slightly, brighten
+
       m.position.y = v * 2.2 * (0.2 + 0.8 * a) + reactor.beat * 0.2;
       const sc = 1 + v * 0.25;
       m.scale.set(sc, sc, 1 + v * 2.5);

@@ -1,15 +1,10 @@
-// Oscilloscope Ribbon: the 96-bin spectrum drawn as a glowing waveform line that
-// flows away from the viewer. Each frame the live spectrum is pushed onto the
-// front row and older rows scroll back, building a waterfall of past waveforms.
-// Brightness fades with depth; the front line pulses on beats. Rotatable.
-
 import * as THREE from 'three';
 import { Visualizer } from './base.js';
 
 const BINS = 96;
 const ROWS = 64;
-const WIDTH = 14;     // total span across X
-const SPACING = 0.35; // Z gap between rows
+const WIDTH = 14;
+const SPACING = 0.35;
 
 export class Oscilloscope extends Visualizer {
   build() {
@@ -17,7 +12,6 @@ export class Oscilloscope extends Visualizer {
     this.group = new THREE.Group();
     this.scene.add(this.group);
 
-    // ring buffer of spectrum snapshots (newest at index 0)
     this.history = [];
     for (let r = 0; r < ROWS; r++) this.history.push(new Float32Array(BINS));
 
@@ -51,7 +45,7 @@ export class Oscilloscope extends Visualizer {
   }
 
   frame(reactor, dt) {
-    // push newest spectrum row, recycle the oldest buffer
+
     const oldest = this.history.pop();
     oldest.set(reactor.spectrum);
     this.history.unshift(oldest);
@@ -66,7 +60,7 @@ export class Oscilloscope extends Visualizer {
       }
       attr.needsUpdate = true;
 
-      const depth = 1 - r / ROWS;            // 1 at front, 0 at back
+      const depth = 1 - r / ROWS;
       const c = this.palette.primary.clone().lerp(this.palette.secondary, r / ROWS);
       if (r === 0) c.addScalar(reactor.beat * 0.5);
       line.material.color.copy(c);
@@ -75,6 +69,6 @@ export class Oscilloscope extends Visualizer {
   }
 
   onPalette() {
-    // colors are recomputed every frame from the palette
+
   }
 }

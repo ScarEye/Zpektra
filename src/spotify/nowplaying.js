@@ -1,7 +1,3 @@
-// Polls Spotify's Web API directly (no backend) for the currently playing track.
-// Notifies subscribers each tick with the latest state, flagging track changes
-// so visualizers can re-theme from album art.
-
 import { Session } from '../auth/session.js';
 
 const API = 'https://api.spotify.com/v1/me/player/currently-playing';
@@ -39,8 +35,7 @@ async function poll() {
     playing = track.playing;
     subscribers.forEach((cb) => cb(track, changed, playing));
   } catch {
-    /* network blip — retry next tick */
-  }
+      }
 }
 
 export const NowPlaying = {

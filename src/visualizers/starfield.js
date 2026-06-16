@@ -1,12 +1,7 @@
-// Starfield Warp: stars stream past the camera down the +Z axis. Travel speed
-// rides on energy and lurches on every beat, stretching the nearest stars into
-// streaks. Stars recycle to the far plane when they pass the camera. Motion is
-// gated by activity so the field drifts to a stop on silence.
-
 import * as THREE from 'three';
 import { Visualizer } from './base.js';
 
-const vert = /* glsl */ `
+const vert =  `
   uniform float uBeat;
   uniform float uEnergy;
   uniform float uAct;
@@ -22,8 +17,8 @@ const vert = /* glsl */ `
   }
 `;
 
-const frag = /* glsl */ `
-  precision mediump float;
+const frag =  `
+  precision highp float;
   uniform vec3 uColorA;
   uniform vec3 uColorB;
   uniform float uAct;
@@ -43,9 +38,9 @@ export class Starfield extends Visualizer {
   build() {
     this.interactive = true;
     this.COUNT = 2200;
-    this.SPREAD = 40;     // x/y box half-width
-    this.NEAR = 12;       // where stars recycle (camera is at z=0 looking -Z... we move +Z)
-    this.FAR = -60;       // spawn depth
+    this.SPREAD = 40;
+    this.NEAR = 12;
+    this.FAR = -60;
 
     this.positions = new Float32Array(this.COUNT * 3);
     const seeds = new Float32Array(this.COUNT);
@@ -89,13 +84,12 @@ export class Starfield extends Visualizer {
     u.uEnergy.value = reactor.energy;
     u.uAct.value = reactor.activity;
 
-    // Forward speed: baseline drift + energy + beat kick, all gated by activity.
     const speed = (4 + reactor.energy * 60 + reactor.beat * 50) * reactor.activity * dt;
     const p = this.positions;
     for (let i = 0; i < this.COUNT; i++) {
       let z = p[i * 3 + 2] + speed;
       if (z > this.NEAR) {
-        // recycle to the far plane at a fresh x/y
+
         z = this.FAR + (z - this.NEAR);
         p[i * 3] = (Math.random() * 2 - 1) * this.SPREAD;
         p[i * 3 + 1] = (Math.random() * 2 - 1) * this.SPREAD;
@@ -104,7 +98,6 @@ export class Starfield extends Visualizer {
     }
     this.posAttr.needsUpdate = true;
 
-    // slow roll for a sense of flight
     this.points.rotation.z += dt * 0.05 * reactor.activity;
   }
 

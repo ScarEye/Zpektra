@@ -1,13 +1,8 @@
-// Spike Sphere: a high-detail icosahedron whose surface is pushed out along its
-// normals by a moving noise field. Bass inflates the whole body, mids sharpen
-// the spikes, highs add fine shimmer and beats punch it outward. Rendered as a
-// glowing wireframe so the spikes read clearly. Rotatable / zoomable.
-
 import * as THREE from 'three';
 import { Visualizer } from './base.js';
 import { noiseGLSL } from './glsl-noise.js';
 
-const vert = /* glsl */ `
+const vert =  `
   uniform float uClock;
   uniform float uBass;
   uniform float uMid;
@@ -20,7 +15,6 @@ const vert = /* glsl */ `
 
   void main(){
     vec3 n = normalize(position);
-    // layered noise over the sphere surface, animated by the audio clock
     float slow = snoise(position * 0.8 + vec3(0.0, 0.0, uClock));
     float fast = snoise(position * 2.2 + vec3(uClock * 1.7));
     float spike = slow * (0.35 + uMid * 2.2) + fast * (0.1 + uHigh * 1.2);
@@ -34,8 +28,8 @@ const vert = /* glsl */ `
   }
 `;
 
-const frag = /* glsl */ `
-  precision mediump float;
+const frag =  `
+  precision highp float;
   uniform vec3 uColorA;
   uniform vec3 uColorB;
   uniform float uAct;
@@ -52,7 +46,7 @@ const frag = /* glsl */ `
 export class SpikeSphere extends Visualizer {
   build() {
     this.interactive = true;
-    const geo = new THREE.IcosahedronGeometry(1, 24);
+    const geo = new THREE.IcosahedronGeometry(1, 5);
 
     this.clock = 0;
     this.uniforms = {

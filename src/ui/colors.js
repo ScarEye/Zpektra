@@ -1,11 +1,3 @@
-// Controls the active color palette with three modes:
-//   album  -> colors extracted from the current song's album art (default)
-//   custom -> user-chosen primary/secondary (color picker or hex code)
-//   cycle  -> hue rotates over time on its own
-//
-// tick(dt) returns a fresh palette when it changes (every frame in cycle mode,
-// once after a change otherwise), or null when nothing changed.
-
 import * as THREE from 'three';
 
 const FALLBACK = {
@@ -36,13 +28,28 @@ export class ColorController {
       accent: new THREE.Color('#ffffff'),
     };
     this.cyclePhase = 0;
-    this.cycleSpeed = 0.4; // hue revolutions per second
+    this.cycleSpeed = 0.4;
+    this.intensity = 1;
     this._dirty = true;
   }
 
   setMode(m) {
     this.mode = m;
     this._dirty = true;
+  }
+
+  setIntensity(v) {
+    this.intensity = Math.max(0, v);
+    this._dirty = true;
+  }
+
+  _apply(pal) {
+    const k = this.intensity;
+    return {
+      primary: pal.primary.clone().multiplyScalar(k),
+      secondary: pal.secondary.clone().multiplyScalar(k),
+      accent: pal.accent.clone().multiplyScalar(k),
+    };
   }
 
   setAlbum(pal) {
@@ -72,16 +79,20 @@ export class ColorController {
     };
   }
 
-  current() {
+  _rawCurrent() {
     if (this.mode === 'album') return this.album;
     if (this.mode === 'custom') return this.custom;
     return this._cyclePalette();
   }
 
+  current() {
+    return this._apply(this._rawCurrent());
+  }
+
   tick(dt) {
     if (this.mode === 'cycle') {
       this.cyclePhase += dt * this.cycleSpeed;
-      return this._cyclePalette();
+      return this._apply(this._cyclePalette());
     }
     if (this._dirty) {
       this._dirty = false;

@@ -8,8 +8,6 @@ const PORT = process.env.PORT || 8888;
 
 app.use(express.json());
 
-// Basic CORS for the Vite dev origin (proxy usually handles this, but this keeps
-// direct calls working too).
 app.use((req, res, next) => {
   const origin = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
   res.header('Access-Control-Allow-Origin', origin);

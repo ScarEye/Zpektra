@@ -1,6 +1,3 @@
-// Owns the renderer + animation loop, swaps visualizers, manages orbit
-// interaction for 3D visualizers, and drives the color palette each frame.
-
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { Reactor } from './audio/analyser.js';
@@ -19,6 +16,7 @@ export class Engine {
     this.palette = this.colors.current();
     this.active = null;
     this.controls = null;
+    this.meshMode = 'wire'; // 'wire' | 'dots' — for visualizers that support setMode()
     this._last = performance.now();
     this._running = false;
     this.debug = new Debug();
@@ -43,9 +41,9 @@ export class Engine {
     vis.build();
     vis.setPalette(this.palette);
     vis.resize(window.innerWidth, window.innerHeight);
+    if (typeof vis.setMode === 'function') vis.setMode(this.meshMode);
     this.active = vis;
 
-    // Enable mouse orbit for 3D visualizers (drag to rotate, scroll to zoom).
     if (vis.interactive) {
       this.controls = new OrbitControls(vis.camera, this.renderer.domElement);
       this.controls.enableDamping = true;
@@ -63,6 +61,21 @@ export class Engine {
   setPalette(palette) {
     this.palette = palette;
     if (this.active) this.active.setPalette(palette);
+  }
+
+  // True when the active visualizer can switch between grid/dots modes.
+  supportsMeshMode() {
+    return !!(this.active && typeof this.active.setMode === 'function');
+  }
+
+  setMeshMode(mode) {
+    this.meshMode = mode === 'dots' ? 'dots' : 'wire';
+    if (this.supportsMeshMode()) this.active.setMode(this.meshMode);
+    return this.meshMode;
+  }
+
+  toggleMeshMode() {
+    return this.setMeshMode(this.meshMode === 'wire' ? 'dots' : 'wire');
   }
 
   setPlaying(isPlaying) {
@@ -84,7 +97,7 @@ export class Engine {
       if (pal) this.setPalette(pal);
 
       if (this.controls) {
-        // gentle auto-spin that speeds up with the music; user drag overrides it
+
         this.controls.autoRotateSpeed = 0.25 + this.reactor.activity * 1.6;
         this.controls.update();
       }

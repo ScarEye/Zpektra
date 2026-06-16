@@ -1,9 +1,3 @@
-// Live debug overlay: a small canvas in the top-left showing each frequency
-// band, the beat pulse, and the master activity gate. Toggle with the "D" key.
-// Use it to confirm the audio capture is feeding real-time data: the bars should
-// jump with the music. If everything sits flat at zero, audio isn't being
-// captured (check the "Share audio" step / "Share system audio" checkbox).
-
 import { BAND_NAMES } from '../audio/analyser.js';
 
 export class Debug {
@@ -63,7 +57,6 @@ export class Debug {
       ctx.restore();
     });
 
-    // beat + activity bars
     const by = H - 30;
     ctx.fillStyle = '#555';
     ctx.fillRect(pad, by, W - pad * 2, 8);

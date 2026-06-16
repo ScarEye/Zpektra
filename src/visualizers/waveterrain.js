@@ -1,14 +1,10 @@
-// Wave Terrain: a grid plane whose surface rises with the spectrum (low freqs at
-// the front, highs toward the back) and ripples forward over time. Colored by
-// height. Rotatable / zoomable via mouse.
-
 import * as THREE from 'three';
 import { Visualizer } from './base.js';
 import { noiseGLSL } from './glsl-noise.js';
 
 const SPEC_N = 64;
 
-const vert = /* glsl */ `
+const vert =  `
   uniform float uSpec[${SPEC_N}];
   uniform float uClock;
   uniform float uAct;
@@ -20,17 +16,14 @@ const vert = /* glsl */ `
   void main(){
     vec3 p = position; // plane in XY, size 2 x 2
 
-    // map x -> spectrum index (low freq at front edge)
     float fx = clamp(p.x*0.5 + 0.5, 0.0, 1.0);
     int idx = int(fx*float(${SPEC_N - 1}));
     float s = uSpec[idx];
 
-    // depth coordinate (front->back), with a forward-scrolling ripple
     float depth = p.y*0.5 + 0.5;
     float ripple = snoise(vec3(p.x*2.0, depth*3.0 - uClock*1.2, uClock*0.3));
 
     float h = s*1.6*(0.2 + 0.8*uAct) + ripple*0.12*uAct + uBeat*0.15;
-    // fade height toward the back so the front (where the music hits) pops
     h *= mix(1.0, 0.4, depth);
 
     p.z += h;          // displace along local Z (becomes world up after rotation)
@@ -40,7 +33,7 @@ const vert = /* glsl */ `
   }
 `;
 
-const frag = /* glsl */ `
+const frag =  `
   precision highp float;
   uniform vec3 uColorA;
   uniform vec3 uColorB;
@@ -76,7 +69,7 @@ export class WaveTerrain extends Visualizer {
       wireframe: true,
     });
     this.mesh = new THREE.Mesh(geo, mat);
-    this.mesh.rotation.x = -Math.PI / 2; // lay flat
+    this.mesh.rotation.x = -Math.PI / 2;
     this.mesh.scale.set(8, 8, 4);
     this.scene.add(this.mesh);
 
@@ -87,7 +80,7 @@ export class WaveTerrain extends Visualizer {
 
   frame(reactor, dt) {
     this.clock += dt * (0.3 + reactor.energy * 2.0) * reactor.activity;
-    // resample 96-bin spectrum into our 64 uniform slots
+
     const src = reactor.spectrum;
     for (let i = 0; i < SPEC_N; i++) {
       this.specArr[i] = src[Math.floor((i / SPEC_N) * src.length)];

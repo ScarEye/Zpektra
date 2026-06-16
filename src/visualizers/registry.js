@@ -7,9 +7,8 @@ import { Rings } from './rings.js';
 import { Starfield } from './starfield.js';
 import { SpikeSphere } from './spikesphere.js';
 import { Oscilloscope } from './oscilloscope.js';
+import { SphereNet, CubeNet, CylinderNet, CapsuleNet, PyramidNet } from './meshshapes.js';
 
-// Metadata for the picker + factory for the engine.
-// "3D" visualizers support mouse drag-to-rotate and scroll-to-zoom.
 export const VISUALIZERS = [
   {
     id: 'blob',
@@ -52,6 +51,36 @@ export const VISUALIZERS = [
     name: 'Oscilloscope Ribbon',
     description: '3D · A glowing waveform that flows into the distance, stacking every past frame.',
     create: (renderer) => new Oscilloscope(renderer),
+  },
+  {
+    id: 'sphere',
+    name: 'Sphere Net',
+    description: '3D · A grid sphere that breathes and ripples with the music. Toggle grid / dots with M.',
+    create: (renderer) => new SphereNet(renderer),
+  },
+  {
+    id: 'cube',
+    name: 'Cube Net',
+    description: '3D · A wireframe cube whose faces pulse and warp on the sound. Toggle grid / dots with M.',
+    create: (renderer) => new CubeNet(renderer),
+  },
+  {
+    id: 'cylinder',
+    name: 'Cylinder Net',
+    description: '3D · A grid cylinder that swells and shimmers with the spectrum. Toggle grid / dots with M.',
+    create: (renderer) => new CylinderNet(renderer),
+  },
+  {
+    id: 'capsule',
+    name: 'Capsule Net',
+    description: '3D · A capsule mesh that flexes and pulses to the beat. Toggle grid / dots with M.',
+    create: (renderer) => new CapsuleNet(renderer),
+  },
+  {
+    id: 'pyramid',
+    name: 'Pyramid Net',
+    description: '3D · A grid pyramid that rises and ripples with the music. Toggle grid / dots with M.',
+    create: (renderer) => new PyramidNet(renderer),
   },
   {
     id: 'bars',

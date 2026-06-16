@@ -1,6 +1,3 @@
-// Builds the visualizer picker grid (full screen) and the bottom dock (live
-// switcher shown over a running visualizer).
-
 import { VISUALIZERS } from '../visualizers/registry.js';
 
 function tagFor(v) {
@@ -19,8 +16,6 @@ export function buildPicker(onPick) {
   });
 }
 
-// Bottom horizontal dock. Returns a setActive(id) function to highlight the
-// current visualizer.
 export function buildDock(onPick) {
   const dock = document.getElementById('vis-dock');
   dock.innerHTML = '';

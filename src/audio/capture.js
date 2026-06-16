@@ -1,22 +1,9 @@
-// Audio capture with two selectable sources, both feeding a shared AnalyserNode:
-//
-//   1) Audio INPUT device (getUserMedia)  -> a microphone OR a virtual loopback
-//      device (e.g. VB-Audio Cable / VoiceMeeter / "Stereo Mix"). Routing
-//      Spotify into a loopback device and selecting it here gives clean, direct,
-//      digital audio with NO screen share and a one-time permission. This is the
-//      recommended "straight from Spotify" path.
-//
-//   2) DISPLAY/tab audio (getDisplayMedia) -> share a screen/tab with audio.
-//      No install, but re-prompts each session.
-//
-// Switch sources or devices at any time; the analyser is rebuilt transparently.
-
 let audioCtx = null;
 let analyser = null;
 let sourceNode = null;
 let mediaStream = null;
 
-let currentSource = 'none'; // 'input' | 'display' | 'none'
+let currentSource = 'none';
 let currentDeviceId = null;
 let endedCb = null;
 
@@ -34,10 +21,7 @@ async function buildAnalyser(stream) {
   analyser.fftSize = 4096;
   analyser.smoothingTimeConstant = 0.6;
   sourceNode.connect(analyser);
-  // We never connect to destination: the audio already plays via Spotify;
-  // re-routing it would cause an echo.
 
-  // If the track ends (user revokes share / unplugs device), clean up + notify.
   audioTracks[0].addEventListener('ended', () => {
     Capture.stop();
     if (endedCb) endedCb();
@@ -55,14 +39,12 @@ export const Capture = {
     return { source: currentSource, deviceId: currentDeviceId };
   },
 
-  // One-time permission so device labels become visible.
   async requestPermission() {
     const s = await navigator.mediaDevices.getUserMedia({ audio: true });
     s.getTracks().forEach((t) => t.stop());
     return true;
   },
 
-  // List selectable audio input devices (labels need permission first).
   async listInputs() {
     const devices = await navigator.mediaDevices.enumerateDevices();
     return devices
@@ -70,7 +52,6 @@ export const Capture = {
       .map((d) => ({ deviceId: d.deviceId, label: d.label || 'Audio input' }));
   },
 
-  // Capture from a chosen input device (mic or virtual loopback).
   async startFromDevice(deviceId, onEnded) {
     this.stop();
     endedCb = onEnded || null;
@@ -89,7 +70,6 @@ export const Capture = {
     return true;
   },
 
-  // Capture from a shared screen/tab (must tick "share audio").
   async startDisplay(onEnded) {
     this.stop();
     endedCb = onEnded || null;
@@ -97,7 +77,7 @@ export const Capture = {
       video: true,
       audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
     });
-    // Drop the video track; we only want audio.
+
     mediaStream.getVideoTracks().forEach((t) => t.stop());
     await buildAnalyser(mediaStream);
     currentSource = 'display';
@@ -111,8 +91,7 @@ export const Capture = {
       mediaStream?.getTracks().forEach((t) => t.stop());
       audioCtx?.close();
     } catch {
-      /* ignore */
-    }
+          }
     sourceNode = null;
     analyser = null;
     mediaStream = null;

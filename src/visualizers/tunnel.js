@@ -1,17 +1,13 @@
-// Fullscreen fragment-shader warp tunnel with fbm detail, hue cycling and beat
-// flashes. All motion advances on an audio-driven clock, so when the music stops
-// the tunnel stops.
-
 import * as THREE from 'three';
 import { Visualizer } from './base.js';
 import { noiseGLSL } from './glsl-noise.js';
 
-const vert = /* glsl */ `
+const vert =  `
   varying vec2 vUv;
   void main(){ vUv = uv; gl_Position = vec4(position, 1.0); }
 `;
 
-const frag = /* glsl */ `
+const frag =  `
   precision highp float;
   varying vec2 vUv;
   uniform float uClock;     // audio-driven time
@@ -28,7 +24,6 @@ const frag = /* glsl */ `
   ${noiseGLSL}
 
   vec3 hue(vec3 c, float a){
-    // rotate hue by angle a (radians) — quick approximation
     const vec3 k = vec3(0.57735);
     float cosA = cos(a);
     return c*cosA + cross(k,c)*sin(a) + k*dot(k,c)*(1.0-cosA);
@@ -40,17 +35,14 @@ const frag = /* glsl */ `
     float r = length(p);
     float a = atan(p.y, p.x);
 
-    // tunnel depth + swirl driven by bass
     float depth = 0.34/(r+0.06) + uClock*0.6;
     depth += sin(a*6.0 + uClock*1.5)*(0.12 + uBass*0.7);
 
-    // layered fbm walls
     vec3 q = vec3(a*1.6, depth, uClock*0.3);
     float n = fbm(q*1.5);
     float bands = sin(depth*10.0 + n*3.0)*0.5+0.5;
     bands = pow(bands, 1.6 - uTreble*1.2);
 
-    // angular sparkle from treble
     float spokes = sin(a*(8.0+uTreble*40.0) + uClock*2.0)*0.5+0.5;
 
     vec3 col = mix(uColorA, uColorB, bands);
@@ -58,11 +50,9 @@ const frag = /* glsl */ `
     col += spokes*uTreble*0.6;                    // treble -> angular sparkle
     col *= bands*(0.5 + uBeat*1.2 + uBass*0.7 + uVocal*0.6); // vocals brighten
 
-    // center glow + beat flash
     col += uColorB*(0.05/(r+0.03))*(0.6 + uBeat*1.5 + uVocal*0.5);
     col += uColorA*uBeat*0.25;
 
-    // vignette + fade with activity (dim when silent)
     col *= smoothstep(1.35, 0.1, r);
     col *= 0.15 + 0.85*uAct;
 
@@ -94,7 +84,7 @@ export class Tunnel extends Visualizer {
   }
 
   frame(reactor, dt) {
-    // motion is driven ONLY by audio activity -> fully stops on silence
+
     this.clock += dt * (0.5 + reactor.energy * 3.2) * reactor.activity;
     const u = this.uniforms;
     u.uClock.value = this.clock;

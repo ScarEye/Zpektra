@@ -2,9 +2,7 @@
   --bg: #0a0e14;
   --fg: #e8edf2;
   --muted: #7c8a9a;
-  --accent: #22d3ee;   /* cyan */
-  --accent2: #2dd4bf;  /* teal */
-  --panel: rgba(13, 18, 26, 0.8);
+  --accent: #22d3ee;     --accent2: #2dd4bf;    --panel: rgba(13, 18, 26, 0.8);
   --mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, monospace;
 }
 
@@ -177,9 +175,39 @@ button:active { transform: scale(0.97); }
   backdrop-filter: blur(14px);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 16px;
-  padding: 20px 22px;
+  padding: 18px 22px 20px;
   width: 320px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  transform-origin: bottom right;
+}
+#colors-panel:not(.hidden) { animation: cp-in 0.16s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@keyframes cp-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+.cp-head {
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 16px;
+  letter-spacing: 0.2px;
+}
+.cp-sep {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 4px 0 16px;
+}
+.cp-val {
+  flex: 0 0 auto;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--accent);
+  min-width: 36px;
+  text-align: right;
+}
+.ghost.active {
+  background: rgba(34, 211, 238, 0.16);
+  border-color: var(--accent);
+  color: var(--accent);
 }
 .cp-row {
   display: flex;
@@ -190,8 +218,6 @@ button:active { transform: scale(0.97); }
 .cp-row:last-child { margin-bottom: 0; }
 .cp-row label { flex: 0 0 84px; font-size: 13px; color: var(--muted); }
 
-/* Larger, nicer color swatch. The default native control is tiny, so we size a
-   wrapper and strip the inner chrome for a clean rounded swatch. */
 .cp-row input[type='color'] {
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -255,7 +281,6 @@ button:active { transform: scale(0.97); }
 }
 .badge.on { background: rgba(34, 211, 238, 0.18); color: var(--accent); }
 
-/* ---------- visualizer dock (bottom horizontal scroller) ---------- */
 #vis-dock {
   display: flex;
   gap: 10px;
@@ -294,7 +319,6 @@ button:active { transform: scale(0.97); }
 }
 .dock-item.active .dock-tag { color: var(--accent); }
 
-/* ---------- back buttons ---------- */
 .back-top {
   position: absolute;
   top: 16px;
@@ -308,7 +332,6 @@ button:active { transform: scale(0.97); }
 .back-top:hover { color: var(--fg); border-color: rgba(255, 255, 255, 0.3); }
 .panel { position: relative; }
 
-/* ---------- refined welcome ---------- */
 .welcome-card {
   position: relative;
   max-width: 560px;

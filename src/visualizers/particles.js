@@ -1,12 +1,8 @@
-// GPU particle nebula. ~4k points on a fuzzy shell that swirl with noise, swell
-// with bass and burst on beats. Color mixes across the palette with a hue drift.
-// Motion runs on an audio-driven clock and dims when the music stops.
-
 import * as THREE from 'three';
 import { Visualizer } from './base.js';
 import { noiseGLSL } from './glsl-noise.js';
 
-const vert = /* glsl */ `
+const vert =  `
   uniform float uClock;
   uniform float uBass;   // radial pulse
   uniform float uMid;    // noise displacement amount (movement)
@@ -25,25 +21,22 @@ const vert = /* glsl */ `
     float r = length(p);
     vMix = clamp(r/6.0, 0.0, 1.0);
 
-    // curl-ish displacement from noise field -> driven by mids
     vec3 np = p*0.35 + vec3(uClock*0.3, uClock*0.2, aSeed);
     vec3 disp = vec3(snoise(np), snoise(np+31.4), snoise(np+57.7));
     p += disp * (0.3 + uMid*3.0);
 
-    // radial pulse with bass + beat burst
     p *= 1.0 + uBass*0.6 + uBeat*0.6;
 
     vGlow = uBeat + uHigh*0.5;
 
     vec4 mv = modelViewMatrix * vec4(p, 1.0);
     gl_Position = projectionMatrix * mv;
-    // keep a solid base size so the field is always visible; grow with audio
     gl_PointSize = (3.0 + uBeat*9.0 + uHigh*10.0 + uEnergy*4.0) * (300.0/-mv.z);
   }
 `;
 
-const frag = /* glsl */ `
-  precision mediump float;
+const frag =  `
+  precision highp float;
   uniform vec3 uColorA;
   uniform vec3 uColorB;
   uniform float uAct;
@@ -109,7 +102,7 @@ export class Particles extends Visualizer {
 
   frame(reactor, dt) {
     const b = reactor.bands;
-    // motion is driven ONLY by audio activity -> fully stops on silence
+
     this.clock += dt * (0.4 + reactor.energy * 2.2) * reactor.activity;
     const u = this.uniforms;
     u.uClock.value = this.clock;
@@ -119,7 +112,7 @@ export class Particles extends Visualizer {
     u.uEnergy.value = reactor.energy;
     u.uBeat.value = reactor.beat;
     u.uAct.value = reactor.activity;
-    // rotation handled by camera orbit (engine)
+
   }
 
   onPalette(p) {
