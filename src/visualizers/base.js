@@ -4,6 +4,7 @@ export class Visualizer {
   constructor(renderer) {
     this.renderer = renderer;
     this.interactive = false;
+    this.rotationSpeed = 1;
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
     this.camera.position.z = 8;

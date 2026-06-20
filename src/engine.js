@@ -17,6 +17,7 @@ export class Engine {
     this.active = null;
     this.controls = null;
     this.meshMode = 'wire'; // 'wire' | 'dots' — for visualizers that support setMode()
+    this.rotationSpeed = 0.4; // global multiplier (slider 50 = 1×)
     this._last = performance.now();
     this._running = false;
     this.debug = new Debug();
@@ -78,6 +79,10 @@ export class Engine {
     return this.setMeshMode(this.meshMode === 'wire' ? 'dots' : 'wire');
   }
 
+  setRotationSpeed(slider0to100) {
+    this.rotationSpeed = Number(slider0to100) / 50;
+  }
+
   setPlaying(isPlaying) {
     this.reactor.setPlaying(isPlaying);
   }
@@ -97,12 +102,13 @@ export class Engine {
       if (pal) this.setPalette(pal);
 
       if (this.controls) {
-
-        this.controls.autoRotateSpeed = 0.25 + this.reactor.activity * 1.6;
+        this.controls.autoRotateSpeed =
+          (0.25 + this.reactor.activity * 1.6) * this.rotationSpeed;
         this.controls.update();
       }
 
       if (this.active) {
+        this.active.rotationSpeed = this.rotationSpeed;
         this.active.frame(this.reactor, dt);
         this.active.render();
       }

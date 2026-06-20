@@ -45,7 +45,49 @@ html, body {
   max-width: 420px;
 }
 
-.panel.wide { max-width: 760px; }
+.panel.wide { max-width: 760px; width: min(760px, calc(100vw - 32px)); }
+
+#screen-picker {
+  display: grid;
+  place-items: start center;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  align-content: start;
+  padding: 24px 16px 40px;
+}
+
+#screen-picker .panel.wide {
+  margin: 0 auto;
+}
+
+.picker-scroll {
+  max-height: min(58vh, 560px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 20px;
+  padding-right: 6px;
+  scrollbar-gutter: stable;
+}
+
+.picker-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.picker-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 999px;
+}
+
+.picker-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+}
+
+.picker-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(34, 211, 238, 0.45);
+}
 
 h1 { font-size: 44px; margin: 0 0 8px; letter-spacing: -1px; }
 h2 { margin: 0 0 24px; }
@@ -116,7 +158,7 @@ button:active { transform: scale(0.97); }
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 16px;
-  margin-bottom: 24px;
+  margin-bottom: 0;
 }
 
 .card {

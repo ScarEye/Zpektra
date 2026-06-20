@@ -8,6 +8,8 @@ import { Starfield } from './starfield.js';
 import { SpikeSphere } from './spikesphere.js';
 import { Oscilloscope } from './oscilloscope.js';
 import { SphereNet, CubeNet, CylinderNet, CapsuleNet, PyramidNet } from './meshshapes.js';
+import { GoldenSeal } from './goldenseal.js';
+import { StarryNight } from './starrynight.js';
 
 export const VISUALIZERS = [
   {
@@ -93,6 +95,18 @@ export const VISUALIZERS = [
     name: 'Warp Tunnel',
     description: 'A noisy shader tunnel that races, warps and shifts hue with the music.',
     create: (renderer) => new Tunnel(renderer),
+  },
+  {
+    id: 'goldenseal',
+    name: 'Golden Sigil',
+    description: '2D · A floor seal that pulses golden light from the center outward, with sparkles on the beat.',
+    create: (renderer) => new GoldenSeal(renderer),
+  },
+  {
+    id: 'starrynight',
+    name: 'Starry Night',
+    description: '3D · Eight frequency bands each drive their own stars — bass stars pulse and swell, treble stars flicker and sparkle.',
+    create: (renderer) => new StarryNight(renderer),
   },
 ];
 

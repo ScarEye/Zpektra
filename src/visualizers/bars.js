@@ -77,14 +77,15 @@ export class Bars extends Visualizer {
 
     const s = 1 + reactor.bass * 0.8 + reactor.beat * 0.5;
     this.core.scale.setScalar(s);
-    this.core.rotation.x += dt * 0.3 * a;
-    this.core.rotation.y += dt * 0.5 * a;
+    const rs = this.rotationSpeed;
+    this.core.rotation.x += dt * 0.3 * a * rs;
+    this.core.rotation.y += dt * 0.5 * a * rs;
     this.core.material.opacity = 0.3 + 0.7 * a;
 
     this.glow.scale.setScalar(1 + reactor.beat * 1.2 + reactor.bass * 0.6);
     this.glow.material.opacity = (0.2 + reactor.beat * 0.6) * (0.3 + 0.7 * a);
 
-    this.group.rotation.y += dt * (0.1 + reactor.energy * 0.5) * a;
+    this.group.rotation.y += dt * (0.1 + reactor.energy * 0.5) * a * this.rotationSpeed;
   }
 
   onPalette(p) {

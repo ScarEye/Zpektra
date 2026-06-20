@@ -44,7 +44,9 @@
       <div class="panel wide">
         <button class="back-top" id="btn-picker-back">← Back</button>
         <h2>Choose a visualizer</h2>
-        <div id="picker-grid" class="grid"></div>
+        <div class="picker-scroll">
+          <div id="picker-grid" class="grid"></div>
+        </div>
         <button id="btn-logout" class="ghost">Log out</button>
       </div>
     </section>
@@ -117,6 +119,11 @@
         <input type="range" id="cycle-speed" min="0" max="100" value="35" />
       </div>
       <div class="cp-sep"></div>
+      <div class="cp-row">
+        <label for="rotation-speed">Rotation</label>
+        <input type="range" id="rotation-speed" min="0" max="100" value="20" />
+        <span id="rotation-val" class="cp-val">0.4×</span>
+      </div>
       <div class="cp-row">
         <label for="color-intensity">Intensity</label>
         <input type="range" id="color-intensity" min="0" max="250" value="100" />

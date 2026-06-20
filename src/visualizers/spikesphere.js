@@ -85,8 +85,9 @@ export class SpikeSphere extends Visualizer {
     u.uBeat.value = reactor.beat;
     u.uAct.value = reactor.activity;
 
-    this.mesh.rotation.y += dt * 0.3 * (0.3 + reactor.activity);
-    this.mesh.rotation.x += dt * 0.12 * (0.3 + reactor.activity);
+    const rs = this.rotationSpeed;
+    this.mesh.rotation.y += dt * 0.3 * (0.3 + reactor.activity) * rs;
+    this.mesh.rotation.x += dt * 0.12 * (0.3 + reactor.activity) * rs;
   }
 
   onPalette(p) {

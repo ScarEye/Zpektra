@@ -98,7 +98,7 @@ export class Starfield extends Visualizer {
     }
     this.posAttr.needsUpdate = true;
 
-    this.points.rotation.z += dt * 0.05 * reactor.activity;
+    this.points.rotation.z += dt * 0.05 * reactor.activity * this.rotationSpeed;
   }
 
   onPalette(p) {

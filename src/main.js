@@ -191,6 +191,8 @@ function setupColors() {
   const speed = el('cycle-speed');
   const intensity = el('color-intensity');
   const intensityVal = el('intensity-val');
+  const rotation = el('rotation-speed');
+  const rotationVal = el('rotation-val');
   const colorsBtn = el('btn-colors');
 
   let saved = {};
@@ -203,6 +205,7 @@ function setupColors() {
   if (saved.secondary) { cs.value = saved.secondary; hs.value = saved.secondary; }
   if (saved.speed != null) speed.value = saved.speed;
   if (saved.intensity != null) intensity.value = saved.intensity;
+  if (saved.rotation != null) rotation.value = saved.rotation;
 
   const persist = () =>
     localStorage.setItem(
@@ -213,8 +216,14 @@ function setupColors() {
         secondary: cs.value,
         speed: speed.value,
         intensity: intensity.value,
+        rotation: rotation.value,
       })
     );
+
+  function applyRotation() {
+    engine.setRotationSpeed(rotation.value);
+    rotationVal.textContent = (Number(rotation.value) / 50).toFixed(1) + '×';
+  }
 
   function applyIntensity() {
     const k = Number(intensity.value) / 100;
@@ -245,6 +254,7 @@ function setupColors() {
   engine.colors.setCustomSecondary(cs.value);
   engine.colors.setCycleSpeed((Number(speed.value) / 100) * 1.2);
   applyIntensity();
+  applyRotation();
   applyMode();
 
   function openPanel() {
@@ -282,6 +292,7 @@ function setupColors() {
     persist();
   });
   intensity.addEventListener('input', () => { applyIntensity(); persist(); });
+  rotation.addEventListener('input', () => { applyRotation(); persist(); });
 }
 
 function wireButtons() {

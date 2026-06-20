@@ -141,7 +141,7 @@ class MeshShape extends Visualizer {
     u.uBeat.value = reactor.beat;
     u.uAct.value = reactor.activity;
 
-    const rot = dt * (0.12 + reactor.activity * 0.4);
+    const rot = dt * (0.12 + reactor.activity * 0.4) * this.rotationSpeed;
     this.wire.rotation.y += rot;
     this.dots.rotation.y += rot;
     this.wire.rotation.x += rot * 0.4;
