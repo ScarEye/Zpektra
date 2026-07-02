@@ -2,7 +2,7 @@ import { Session } from './auth/session.js';
 import { NowPlaying } from './spotify/nowplaying.js';
 import { Capture } from './audio/capture.js';
 import { Engine } from './engine.js';
-import { buildPicker, buildDock } from './ui/picker.js';
+import { buildPicker, buildDock, buildModal } from './ui/picker.js';
 import { paletteFromImage } from './visualizers/palette.js';
 import { isHex, normHex } from './ui/colors.js';
 
@@ -27,6 +27,11 @@ function show(name) {
   screens.login.classList.toggle('hidden', name !== 'login');
   screens.picker.classList.toggle('hidden', name !== 'picker');
   hud.classList.toggle('hidden', name !== 'visualizer');
+
+  if (engine) {
+    if (name === 'visualizer') engine.start();
+    else engine.stop();
+  }
 
   const needAudio = name === 'visualizer' && !Capture.isActive();
   audioHint.classList.toggle('hidden', !needAudio);
@@ -56,6 +61,7 @@ async function enterApp() {
 
     buildPicker((id) => selectVisualizer(id));
     setDockActive = buildDock((id) => selectVisualizer(id));
+    buildModal((id) => selectVisualizer(id));
     appReady = true;
   }
 

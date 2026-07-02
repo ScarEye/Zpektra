@@ -154,6 +154,14 @@ class MeshShape extends Visualizer {
       this.uniforms.uColorB.value.copy(p.secondary);
     }
   }
+
+  dispose() {
+    if (this.wire) {
+      this.wire.material.dispose();
+      this.wire.geometry.dispose();
+    }
+    if (this.dots) this.dots.material.dispose();
+  }
 }
 
 export class SphereNet extends MeshShape {
