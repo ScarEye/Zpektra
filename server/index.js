@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import { registerAuthRoutes } from './auth.js';
 import { registerSpotifyRoutes } from './spotify.js';
+import { registerLyricsRoutes } from './lyrics.js';
 
 const app = express();
 const PORT = process.env.PORT || 8888;
@@ -19,6 +20,7 @@ app.use((req, res, next) => {
 
 registerAuthRoutes(app);
 registerSpotifyRoutes(app);
+registerLyricsRoutes(app);
 
 app.get('/healthz', (_req, res) => res.json({ ok: true }));
 
