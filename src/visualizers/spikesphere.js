@@ -76,13 +76,17 @@ export class SpikeSphere extends Visualizer {
 
   frame(reactor, dt) {
     const b = reactor.bands;
-    this.clock += dt * (0.2 + reactor.energy * 1.6) * reactor.activity;
+    const punch = reactor.hit ?? reactor.beat;
+    const phase = reactor.beatPhase || 0;
+    const breathe = 0.5 + 0.5 * Math.sin(phase * Math.PI * 2);
+
+    this.clock += dt * (0.2 + reactor.energy * 1.6) * Math.max(reactor.activity, 0.15);
     const u = this.uniforms;
     u.uClock.value = this.clock;
-    u.uBass.value = reactor.bass;
+    u.uBass.value = reactor.bass + breathe * 0.1 * reactor.activity;
     u.uMid.value = (b.mid + b.vocal) * 0.5;
     u.uHigh.value = (b.presence + b.brilliance + b.air) / 3;
-    u.uBeat.value = reactor.beat;
+    u.uBeat.value = Math.max(punch, (reactor.kick || 0) * 1.1);
     u.uAct.value = reactor.activity;
 
     const rs = this.rotationSpeed;

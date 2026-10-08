@@ -84,15 +84,15 @@ export class Tunnel extends Visualizer {
   }
 
   frame(reactor, dt) {
-
-    this.clock += dt * (0.5 + reactor.energy * 3.2) * reactor.activity;
+    const punch = reactor.hit ?? reactor.beat;
+    this.clock += dt * (0.5 + reactor.energy * 3.2) * Math.max(reactor.activity, 0.12);
     const u = this.uniforms;
     u.uClock.value = this.clock;
     u.uBass.value = reactor.bass;
     u.uMid.value = reactor.mid;
     u.uVocal.value = reactor.bands.vocal;
     u.uTreble.value = reactor.treble;
-    u.uBeat.value = reactor.beat;
+    u.uBeat.value = punch;
     u.uAct.value = reactor.activity;
   }
 

@@ -102,17 +102,19 @@ export class Particles extends Visualizer {
 
   frame(reactor, dt) {
     const b = reactor.bands;
+    const punch = reactor.hit ?? reactor.beat;
+    const phase = reactor.beatPhase || 0;
+    const breathe = 0.5 + 0.5 * Math.sin(phase * Math.PI * 2);
 
-    this.clock += dt * (0.4 + reactor.energy * 2.2) * reactor.activity;
+    this.clock += dt * (0.4 + reactor.energy * 2.2) * Math.max(reactor.activity, 0.15);
     const u = this.uniforms;
     u.uClock.value = this.clock;
-    u.uBass.value = reactor.bass;
+    u.uBass.value = reactor.bass + breathe * 0.08 * reactor.activity;
     u.uMid.value = (b.mid + b.vocal) * 0.5;
     u.uHigh.value = (b.presence + b.brilliance + b.air) / 3;
     u.uEnergy.value = reactor.energy;
-    u.uBeat.value = reactor.beat;
+    u.uBeat.value = punch;
     u.uAct.value = reactor.activity;
-
   }
 
   onPalette(p) {

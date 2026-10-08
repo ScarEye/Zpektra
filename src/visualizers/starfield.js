@@ -79,12 +79,16 @@ export class Starfield extends Visualizer {
   }
 
   frame(reactor, dt) {
+    const punch = reactor.hit ?? reactor.beat;
     const u = this.uniforms;
-    u.uBeat.value = reactor.beat;
+    u.uBeat.value = punch;
     u.uEnergy.value = reactor.energy;
     u.uAct.value = reactor.activity;
 
-    const speed = (4 + reactor.energy * 60 + reactor.beat * 50) * reactor.activity * dt;
+    const speed =
+      (4 + reactor.energy * 60 + punch * 70 + (reactor.kick || 0) * 25) *
+      Math.max(reactor.activity, 0.08) *
+      dt;
     const p = this.positions;
     for (let i = 0; i < this.COUNT; i++) {
       let z = p[i * 3 + 2] + speed;

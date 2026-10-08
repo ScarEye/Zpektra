@@ -79,7 +79,8 @@ export class WaveTerrain extends Visualizer {
   }
 
   frame(reactor, dt) {
-    this.clock += dt * (0.3 + reactor.energy * 2.0) * reactor.activity;
+    const punch = reactor.hit ?? reactor.beat;
+    this.clock += dt * (0.3 + reactor.energy * 2.0) * Math.max(reactor.activity, 0.12);
 
     const src = reactor.spectrum;
     for (let i = 0; i < SPEC_N; i++) {
@@ -87,7 +88,7 @@ export class WaveTerrain extends Visualizer {
     }
     this.uniforms.uClock.value = this.clock;
     this.uniforms.uAct.value = reactor.activity;
-    this.uniforms.uBeat.value = reactor.beat;
+    this.uniforms.uBeat.value = punch;
   }
 
   onPalette(p) {

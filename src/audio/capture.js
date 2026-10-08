@@ -19,7 +19,10 @@ async function buildAnalyser(stream) {
   sourceNode = audioCtx.createMediaStreamSource(audioOnly);
   analyser = audioCtx.createAnalyser();
   analyser.fftSize = 4096;
-  analyser.smoothingTimeConstant = 0.6;
+  // Low built-in smoothing — Reactor envelopes handle attack/release.
+  analyser.smoothingTimeConstant = 0.18;
+  analyser.minDecibels = -90;
+  analyser.maxDecibels = -20;
   sourceNode.connect(analyser);
 
   audioTracks[0].addEventListener('ended', () => {
@@ -34,6 +37,12 @@ export const Capture = {
   },
   getAnalyser() {
     return analyser;
+  },
+  getSampleRate() {
+    return audioCtx?.sampleRate || 44100;
+  },
+  getContext() {
+    return audioCtx;
   },
   info() {
     return { source: currentSource, deviceId: currentDeviceId };
@@ -91,7 +100,8 @@ export const Capture = {
       mediaStream?.getTracks().forEach((t) => t.stop());
       audioCtx?.close();
     } catch {
-          }
+      /* ignore teardown races */
+    }
     sourceNode = null;
     analyser = null;
     mediaStream = null;

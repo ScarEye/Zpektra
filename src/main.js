@@ -1,6 +1,7 @@
 import { Session } from './auth/session.js';
 import { NowPlaying } from './spotify/nowplaying.js';
 import { Capture } from './audio/capture.js';
+import { ANALYSIS_PRESETS, DEFAULT_PRESET, PRESET_STORAGE_KEY } from './audio/analyser.js';
 import { Engine } from './engine.js';
 import { buildPicker, buildDock, buildModal } from './ui/picker.js';
 import { paletteFromImage } from './visualizers/palette.js';
@@ -62,6 +63,7 @@ async function enterApp() {
     buildPicker((id) => selectVisualizer(id));
     setDockActive = buildDock((id) => selectVisualizer(id));
     buildModal((id) => selectVisualizer(id));
+    if (applyAnalysisPreset) applyAnalysisPreset();
     appReady = true;
   }
 
@@ -301,7 +303,43 @@ function setupColors() {
   rotation.addEventListener('input', () => { applyRotation(); persist(); });
 }
 
+function setupAnalysisPreset() {
+  const sel = el('analysis-preset');
+  if (!sel) return;
+  sel.innerHTML = '';
+  ANALYSIS_PRESETS.forEach((p) => {
+    const o = document.createElement('option');
+    o.value = p.id;
+    o.textContent = p.name;
+    o.title = p.hint;
+    sel.appendChild(o);
+  });
+  let saved = DEFAULT_PRESET;
+  try {
+    saved = localStorage.getItem(PRESET_STORAGE_KEY) || DEFAULT_PRESET;
+  } catch {
+    /* ignore */
+  }
+  if (!ANALYSIS_PRESETS.some((p) => p.id === saved)) saved = DEFAULT_PRESET;
+  sel.value = saved;
+  sel.title = ANALYSIS_PRESETS.find((p) => p.id === saved)?.hint || 'Analysis preset';
+
+  const apply = () => {
+    if (!engine) return;
+    engine.setAnalysisPreset(sel.value);
+    const meta = ANALYSIS_PRESETS.find((p) => p.id === sel.value);
+    sel.title = meta?.hint || 'Analysis preset';
+  };
+  sel.addEventListener('change', apply);
+  if (engine) apply();
+  return apply;
+}
+
+let applyAnalysisPreset = null;
+
 function wireButtons() {
+  applyAnalysisPreset = setupAnalysisPreset();
+
   el('btn-enter-welcome').addEventListener('click', () => {
     if (Session.isValid()) enterApp();
     else show('login');
@@ -321,11 +359,24 @@ function wireButtons() {
     updateMeshModeBtn();
   });
   document.addEventListener('keydown', (e) => {
+    const tag = (e.target && e.target.tagName) || '';
+    if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+
     if ((e.key === 'm' || e.key === 'M') && engine && engine.supportsMeshMode()) {
-      const tag = (e.target && e.target.tagName) || '';
-      if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
       engine.toggleMeshMode();
       updateMeshModeBtn();
+      return;
+    }
+
+    // H — toggle immersive chrome (hide dock / options, keep song + visualizer)
+    if ((e.key === 'h' || e.key === 'H') && !hud.classList.contains('hidden')) {
+      const on = hud.classList.toggle('chrome-hidden');
+      if (on) {
+        const panel = el('colors-panel');
+        const colorsBtn = el('btn-colors');
+        if (panel) panel.classList.add('hidden');
+        if (colorsBtn) colorsBtn.classList.remove('active');
+      }
     }
   });
   sourceSelect.addEventListener('change', () => {

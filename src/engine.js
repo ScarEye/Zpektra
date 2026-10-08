@@ -87,6 +87,14 @@ export class Engine {
     this.reactor.setPlaying(isPlaying);
   }
 
+  setAnalysisPreset(id) {
+    return this.reactor.setPreset(id);
+  }
+
+  getAnalysisPreset() {
+    return this.reactor.getPreset();
+  }
+
   start() {
     if (this._running) return;
     this._running = true;

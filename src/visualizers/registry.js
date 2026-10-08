@@ -1,4 +1,5 @@
 import { Bars } from './bars.js';
+import { FreqBars } from './freqbars.js';
 import { Particles } from './particles.js';
 import { Tunnel } from './tunnel.js';
 import { Blob } from './blob.js';
@@ -12,6 +13,12 @@ import { GoldenSeal } from './goldenseal.js';
 import { StarryNight } from './starrynight.js';
 
 export const VISUALIZERS = [
+  {
+    id: 'freqbars',
+    name: 'Frequency Bars',
+    description: '2D · Classic equalizer bars across the spectrum, with peak caps and a mirrored floor.',
+    create: (renderer) => new FreqBars(renderer),
+  },
   {
     id: 'blob',
     name: 'Audio Blob',

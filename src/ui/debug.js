@@ -4,8 +4,8 @@ export class Debug {
   constructor() {
     this.enabled = false;
     this.canvas = document.createElement('canvas');
-    this.canvas.width = 240;
-    this.canvas.height = 220;
+    this.canvas.width = 260;
+    this.canvas.height = 280;
     Object.assign(this.canvas.style, {
       position: 'fixed',
       top: '14px',
@@ -36,11 +36,11 @@ export class Debug {
     const pad = 12;
     const n = BAND_NAMES.length;
     const bw = (W - pad * 2) / n;
-    const top = 20;
-    const maxH = 130;
+    const top = 28;
+    const maxH = 110;
 
     ctx.fillStyle = '#bbb';
-    ctx.fillText('FREQUENCY BANDS', pad, 14);
+    ctx.fillText(`BANDS · ${reactor.preset || 'pulse'}`, pad, 14);
 
     BAND_NAMES.forEach((name, i) => {
       const v = Math.min(1, reactor.bands[name] || 0);
@@ -57,18 +57,30 @@ export class Debug {
       ctx.restore();
     });
 
-    const by = H - 30;
-    ctx.fillStyle = '#555';
-    ctx.fillRect(pad, by, W - pad * 2, 8);
-    ctx.fillStyle = '#1db954';
-    ctx.fillRect(pad, by, (W - pad * 2) * reactor.activity, 8);
-    ctx.fillStyle = '#fff';
-    ctx.fillText(`activity ${reactor.activity.toFixed(2)}`, pad, by - 4);
+    const meters = [
+      ['activity', reactor.activity, '#1db954'],
+      ['beat', reactor.beat, '#f5a623'],
+      ['onset', reactor.onset, '#22d3ee'],
+      ['kick', reactor.kick, '#f472b6'],
+      ['snare', reactor.snare, '#a78bfa'],
+      ['hit', reactor.hit, '#fff'],
+    ];
 
-    const by2 = H - 14;
-    ctx.fillStyle = '#555';
-    ctx.fillRect(pad, by2, W - pad * 2, 8);
-    ctx.fillStyle = '#f5a623';
-    ctx.fillRect(pad, by2, (W - pad * 2) * Math.min(1, reactor.beat), 8);
+    let by = H - 78;
+    meters.forEach(([label, val, color]) => {
+      ctx.fillStyle = '#555';
+      ctx.fillRect(pad, by, W - pad * 2, 6);
+      ctx.fillStyle = color;
+      ctx.fillRect(pad, by, (W - pad * 2) * Math.min(1, val || 0), 6);
+      ctx.fillStyle = '#aaa';
+      ctx.fillText(`${label} ${(val || 0).toFixed(2)}`, pad, by - 2);
+      by += 12;
+    });
+
+    ctx.fillStyle = '#888';
+    const bpm = reactor.bpm ? reactor.bpm.toFixed(0) : '—';
+    const conf = ((reactor.tempoConfidence || 0) * 100).toFixed(0);
+    const phase = (reactor.beatPhase || 0).toFixed(2);
+    ctx.fillText(`bpm ${bpm}  conf ${conf}%  phase ${phase}`, pad, H - 8);
   }
 }

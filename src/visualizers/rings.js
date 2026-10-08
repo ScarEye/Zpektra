@@ -43,19 +43,20 @@ export class Rings extends Visualizer {
 
   frame(reactor, dt) {
     const a = reactor.activity;
+    const punch = reactor.hit ?? reactor.beat;
     BAND_NAMES.forEach((name, i) => {
       const v = reactor.bands[name] || 0;
       const m = this.rings[i];
 
-      m.position.y = v * 2.2 * (0.2 + 0.8 * a) + reactor.beat * 0.2;
+      m.position.y = v * 2.2 * (0.2 + 0.8 * a) + punch * 0.28;
       const sc = 1 + v * 0.25;
       m.scale.set(sc, sc, 1 + v * 2.5);
       m.material.opacity = (0.25 + v * 0.9) * (0.3 + 0.7 * a);
       const c = this.palette.primary.clone().lerp(this.palette.secondary, i / (BAND_NAMES.length - 1));
       m.material.color.copy(c);
     });
-    this.core.scale.setScalar(1 + reactor.bass * 1.2 + reactor.beat * 0.6);
-    this.core.material.opacity = (0.3 + reactor.beat * 0.6) * (0.3 + 0.7 * a);
+    this.core.scale.setScalar(1 + reactor.bass * 1.2 + punch * 0.75);
+    this.core.material.opacity = (0.3 + punch * 0.7) * (0.3 + 0.7 * a);
   }
 
   onPalette(p) {
