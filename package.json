@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Zpektra — a static (no-backend) three.js music visualizer that syncs to Spotify via PKCE auth and captured audio.",
+  "author": "ScarEye",
+  "license": "MIT",
+  "description": "A local browser music visualizer, made for fun in the spirit of Windows XP Media Player. Spotify metadata via PKCE, reactivity from captured audio.",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

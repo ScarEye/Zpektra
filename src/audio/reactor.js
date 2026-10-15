@@ -39,7 +39,6 @@ export class Reactor {
     this.bpm = 0;
     this.beatPhase = 0;
     this.tempoConfidence = 0;
-    /** Sharpest punch for visualizers. */
     this.hit = 0;
 
     this.bands = this.envelopes.bands;
@@ -117,8 +116,7 @@ export class Reactor {
     const sampleRate = Capture.getSampleRate();
     this.frame.read(analyser, sampleRate);
 
-    // Kick/snare must run before full spectralFlux() mutates prev mags.
-    this.kickSnare.update(this.frame, dt, 0.09);
+    this.kickSnare.update(this.frame, dt, 0.09); // must run before flux replaces previous bins
     this.kick = this.kickSnare.kick;
     this.snare = this.kickSnare.snare;
 
@@ -131,7 +129,6 @@ export class Reactor {
     this.onset = this.fluxDet.onset;
     this.flux = this.fluxDet.flux;
 
-    // Envelope speeds depend on preset — apply twice lightly via preset params
     const probe = applyPreset(this.preset, {
       onset: this.onset,
       kick: this.kick,
@@ -157,7 +154,6 @@ export class Reactor {
 
     const energyPulse = this.energyDet.update(this.bass, this.activity, dt, minGap);
 
-    // Tempo from strong onsets
     const onsetForTempo = Math.max(this.onset, this.kick);
     if (onsetForTempo > 0.55 && this.activity > 0.1) {
       this.tempo.noteOnset(onsetForTempo);
@@ -175,11 +171,9 @@ export class Reactor {
       gridGate: this.tempo.gridGate(0.2),
     });
 
-    // Beat is an impulse envelope — take max with decay so we don't stick at 1
     if (mapped.beat > this.beat) this.beat = mapped.beat;
     else this.beat *= Math.exp(-dt * 10);
 
-    // Groove: further suppress off-grid residual
     if (this.preset === 'groove' && this.tempoConfidence > 0.35) {
       this.beat *= 0.4 + 0.6 * this.tempo.gridGate(0.22);
     }

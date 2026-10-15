@@ -1,19 +1,7 @@
-// Mesh primitive visualizers: a sphere, cube, cylinder, capsule and pyramid,
-// each built from a low-res grid geometry so the structure reads as a clean net.
-// Every shape has two render modes that can be toggled live:
-//   - 'wire' : a glowing wireframe net (grid lines)
-//   - 'dots' : a point at every grid vertex (dotted structure)
-// The surface breathes with the audio: bass + beats pulse the overall scale,
-// mids/highs drive a moving noise field that ripples the net along its normals.
-// All motion is gated by reactor.activity so it freezes on silence.
-
 import * as THREE from 'three';
 import { Visualizer } from './base.js';
 import { noiseGLSL } from './glsl-noise.js';
 
-// Shared vertex shader: displaces each vertex along its normal by an audio-driven
-// noise field, plus an overall scale pulse. Writes gl_PointSize for dots mode
-// (harmless in wireframe mode).
 const vert = /* glsl */ `
   uniform float uClock;
   uniform float uBass;
@@ -74,7 +62,6 @@ const fragDots = /* glsl */ `
   }
 `;
 
-// Base class. Subclasses override geometry() and (optionally) cameraZ()/pointBase().
 class MeshShape extends Visualizer {
   geometry() { return new THREE.SphereGeometry(1.3, 36, 24); }
   cameraZ() { return 5.0; }

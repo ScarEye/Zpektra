@@ -1,8 +1,15 @@
-# Zpektra — Spotify Audio Visualizer
+# Zpektra
 
-A static three.js music visualizer that logs into Spotify (PKCE, no backend),
-captures your audio, and renders reactive 3D visuals. Built to live at
-`zaidwajid.dev/zpektra`.
+A browser music visualizer, made for fun. The idea is the old Windows XP Media
+Player visualizations — the ones that moved with the song while you just sat
+and watched. This one runs locally in the browser, so there is nothing extra
+to install and no separate player to set up. Open the page, connect Spotify,
+and play.
+
+It logs into Spotify with PKCE (no backend and no client secret), reads the
+current track, and draws reactive scenes from audio captured on your machine.
+
+Licensed under the MIT License. Copyright (c) 2026 ScarEye. See [LICENSE](LICENSE).
 
 ## How it works (and the constraints)
 
@@ -18,9 +25,8 @@ captures your audio, and renders reactive 3D visuals. Built to live at
 ## Setup (Spotify app)
 
 1. Open your app at https://developer.spotify.com/dashboard.
-2. Under **Redirect URIs**, add (exactly, with trailing slash):
-   - `http://127.0.0.1:5173/zpektra/`  (local dev)
-   - `https://zaidwajid.dev/zpektra/`  (production)
+2. Under **Redirect URIs**, add exactly, with the trailing slash:
+   `http://127.0.0.1:5173/zpektra/`
    Spotify requires `127.0.0.1` (not `localhost`) for http.
 3. The **Client ID** is already set in `src/config.js`. PKCE needs no secret, so
    the old `.env`/backend are no longer required.
@@ -37,17 +43,13 @@ Open **http://127.0.0.1:5173/zpektra/** (note the `/zpektra/` path).
 
 ## Using it
 
-1. The **Achievement Unlocked** welcome screen → **Enter Zpektra** → **Connect Spotify**.
+1. On the welcome screen, choose **Enter Zpektra**, then **Connect Spotify**.
 2. Play a track in your normal Spotify app (playback stays there).
-3. Pick a visualizer, then connect audio:
-   - **Audio input device (recommended):** **Enable audio input**, choose a device
-     in the bottom bar (switch any time). For clean, direct Spotify audio use a
-     virtual loopback (below).
-   - **Screen/tab audio:** **Use screen / tab audio** → Entire Screen + *Share
-     system audio*, or the Spotify tab + *Share tab audio*.
-4. Drag to rotate the 3D visualizers, scroll to zoom. **Colors** button switches
-   between album-art / custom (picker + hex) / auto-cycle. Press **D** for live
-   frequency meters.
+3. The library lists finished visualizers. **Prototypes** (Particle Storm, Golden Sigil, and the mesh studies) sit in their own panel, and again inside **All** while a scene is open. Star a scene to pin it on the dock.
+4. Pick a visualizer, then connect audio:
+   - **Audio input device (recommended):** **Enable audio input**, then pick the device under **Audio**. For clean Spotify audio use a virtual loopback (below).
+   - **Screen audio:** **Use screen audio** → Entire Screen and share system audio, or the Spotify tab and share tab audio.
+5. Drag to orbit 3D scenes, scroll to zoom. **Look** sets album, custom, or cycling color, plus rotation and intensity. **Audio** chooses the input and how hits are detected. **Lyrics** toggles timed lyrics (LRCLIB, not Spotify). **H** hides the controls, **D** shows meters, **M** switches grid and dots on the mesh prototypes.
 
 ### Clean, direct Spotify audio (virtual loopback)
 
@@ -61,48 +63,24 @@ screen share, one-time permission.
 - **macOS:** [BlackHole](https://existential.audio/blackhole/) + a Multi-Output
   Device, then pick BlackHole as the input.
 
-## Deploy under zaidwajid.dev/zpektra
-
-`npm run build` outputs to `dist/` with all asset paths under `/zpektra/`
-(because `vite.config.js` sets `base: '/zpektra/'`). Two common options:
-
-- **Same repo as the portfolio:** copy `dist/` into your site at `/zpektra/` (so
-  `https://zaidwajid.dev/zpektra/index.html` is served), or add it as a build step.
-- **Vercel/Netlify:** deploy this project and route `zaidwajid.dev/zpektra` to it.
-
-Make sure the production redirect URI (`https://zaidwajid.dev/zpektra/`) is in the
-Spotify dashboard.
-
-## Portfolio "achievement" button (paste into zaidwajid.dev)
-
-This lives in your **portfolio** code, not this project. Once an achievement is
-unlocked, reveal a button top-left next to ZAID.DEV that links to the visualizer:
-
-```html
-<a id="zpektra-link" href="/zpektra/" style="display:none">🏆 Zpektra</a>
-<script>
-  // call unlockZpektra() from your achievement logic
-  function unlockZpektra() {
-    localStorage.setItem('zpektra.unlocked', '1');
-    document.getElementById('zpektra-link').style.display = 'inline-flex';
-  }
-  if (localStorage.getItem('zpektra.unlocked') === '1') {
-    document.getElementById('zpektra-link').style.display = 'inline-flex';
-  }
-</script>
-```
-
 ## Project layout
 
 ```
 src/
-  config.js        client id, redirect uri, scopes
-  auth/session.js  PKCE login, token exchange + refresh
-  spotify/         now-playing polling (direct Web API)
-  audio/           getUserMedia / getDisplayMedia capture + FFT reactor
-  visualizers/     base, registry, blob, terrain, rings, particles, bars,
-                   tunnel, palette, glsl-noise
-  ui/              picker, colors, debug
-  engine.js        renderer + loop + orbit controls + color ticking
-  main.js          screens (welcome → login → picker → visualizer)
+  main.js            screens, session, now-playing
+  meta.js            product name and ScarEye copyright line
+  config.js          client id, redirect uri, scopes
+  engine.js          renderer, loop, orbit controls
+  auth/session.js    PKCE login, token exchange, refresh
+  spotify/           now-playing, playback clock, LRCLIB lyrics
+  audio/             capture, reactor, bands, presets, detectors
+  visualizers/       registry (release vs prototype) and scenes
+  ui/                library, stage chrome, lyrics, colors, debug
+  styles/            base, screens, stage
 ```
+
+There is no backend. Spotify auth is PKCE in the browser. Lyrics are fetched from LRCLIB.
+
+## License
+
+MIT. Copyright (c) 2026 ScarEye. The license covers this project. three.js remains under its own license.

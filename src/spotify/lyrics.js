@@ -1,5 +1,5 @@
 const LRCLIB = 'https://lrclib.net';
-const CLIENT = 'Zpektra v0.1.0 (https://zaidwajid.dev/)';
+const CLIENT = 'Zpektra/0.1.0 (ScarEye)';
 const cache = new Map();
 
 const LRC_LINE = /\[(\d{1,2}):(\d{2})(?:\.(\d{1,3}))?\]\s*(.*)/;
@@ -21,7 +21,6 @@ export function parseLrc(syncedLyrics) {
   return lines;
 }
 
-/** Binary search: last line with t <= nowMs */
 export function activeLineIndex(lines, nowMs) {
   if (!lines.length) return -1;
   let lo = 0;
@@ -72,10 +71,6 @@ async function getFromLrclib({ title, artist, album, durationSec }) {
   return null;
 }
 
-/**
- * Fetch timed lyrics for a Spotify track.
- * Tries optional local `/api/lyrics` proxy first, then LRCLIB directly (CORS-enabled).
- */
 export async function fetchLyrics(track) {
   if (!track?.title || !track?.artists) {
     return { found: false, instrumental: false, synced: false, lines: [], plain: null };
@@ -85,51 +80,26 @@ export async function fetchLyrics(track) {
   if (cache.has(key)) return cache.get(key);
 
   const durationSec = (track.duration_ms || 0) / 1000;
-  const qs = new URLSearchParams({
-    title: track.title,
-    artist: track.artists,
-    album: track.album || '',
-    duration: String(Math.round(durationSec)),
-    track_id: track.track_id || '',
-  });
+  let payload;
 
-  let payload = null;
-
-  // Optional backend proxy (when Express is running)
   try {
-    const proxy = await fetch(`/api/lyrics?${qs}`);
-    if (proxy.ok) {
-      const data = await proxy.json();
-      if (data && (data.found !== undefined || data.syncedLyrics !== undefined)) {
-        payload = normalizePayload(data);
-      }
-    }
-  } catch {
-    /* proxy unavailable — fall through */
-  }
-
-  if (!payload) {
-    try {
-      const data = await getFromLrclib({
-        title: track.title,
-        artist: track.artists,
-        album: track.album,
-        durationSec,
-      });
-      if (!data) {
-        payload = { found: false, instrumental: false, synced: false, lines: [], plain: null };
-      } else {
-        payload = normalizePayload({
+    const data = await getFromLrclib({
+      title: track.title,
+      artist: track.artists,
+      album: track.album,
+      durationSec,
+    });
+    payload = data
+      ? normalizePayload({
           found: true,
           instrumental: data.instrumental,
           syncedLyrics: data.syncedLyrics,
           plainLyrics: data.plainLyrics,
-        });
-      }
-    } catch (e) {
-      console.warn('[lyrics] fetch failed', e);
-      payload = { found: false, instrumental: false, synced: false, lines: [], plain: null, error: true };
-    }
+        })
+      : { found: false, instrumental: false, synced: false, lines: [], plain: null };
+  } catch (e) {
+    console.warn('[lyrics] fetch failed', e);
+    payload = { found: false, instrumental: false, synced: false, lines: [], plain: null, error: true };
   }
 
   cache.set(key, payload);

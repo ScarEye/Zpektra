@@ -89,6 +89,10 @@ export class ColorController {
     return this._apply(this._rawCurrent());
   }
 
+  themeHex() {
+    return '#' + this._rawCurrent().primary.getHexString();
+  }
+
   tick(dt) {
     if (this.mode === 'cycle') {
       this.cyclePhase += dt * this.cycleSpeed;

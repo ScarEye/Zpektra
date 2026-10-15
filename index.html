@@ -3,147 +3,201 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Zpektra — Spotify Audio Visualizer</title>
-    <link rel="stylesheet" href="./src/styles.css" />
+    <meta name="description" content="Zpektra is a local music visualizer, made for fun in the spirit of Windows XP Media Player." />
+    <meta name="author" content="ScarEye" />
+    <meta name="theme-color" content="#070b10" />
+    <title>Zpektra — ScarEye</title>
+    <link rel="stylesheet" href="./src/styles/base.css" />
+    <link rel="stylesheet" href="./src/styles/screens.css" />
+    <link rel="stylesheet" href="./src/styles/stage.css" />
   </head>
   <body>
     <canvas id="stage"></canvas>
+    <p id="mark" class="mark" data-legal></p>
 
-    <section id="screen-welcome" class="screen">
+    <section id="screen-welcome" class="screen" aria-label="Welcome">
       <div class="welcome-card">
-        <div class="ach-badge"><span class="ach-dot"></span> ACHIEVEMENT UNLOCKED</div>
-        <div class="trophy">🏆</div>
-        <h1 class="welcome-title">You found a hidden project</h1>
+        <p class="eyebrow">Welcome</p>
+        <h1 class="welcome-title">Zpektra</h1>
         <p class="welcome-sub">
-          <b>Zpektra</b> is a real-time music visualizer built with three.js.
-          Connect Spotify, route in your audio, and watch reactive 3D scenes move
-          to whatever you're playing — drag to rotate, recolor it, make it yours.
+          A local music visualizer, made for fun in the spirit of Windows XP Media Player.
+          Open it here, connect Spotify, and play. Nothing extra to install.
         </p>
         <div class="badges-row">
           <span class="chip">three.js</span>
-          <span class="chip">WebGL · GLSL</span>
-          <span class="chip">Web Audio FFT</span>
+          <span class="chip">WebGL</span>
+          <span class="chip">Web Audio</span>
           <span class="chip">Spotify</span>
         </div>
-        <button id="btn-enter-welcome" class="primary big">Enter Zpektra →</button>
-        <a class="back-link" href="https://zaidwajid.dev/">← back to zaidwajid.dev</a>
+        <button id="btn-enter-welcome" class="primary big" type="button">Enter Zpektra</button>
+        <p class="legal" data-legal></p>
       </div>
     </section>
 
-    <section id="screen-login" class="screen hidden">
+    <section id="screen-login" class="screen hidden" aria-label="Connect Spotify">
       <div class="panel">
-        <button class="back-top" id="btn-login-back">← Back</button>
-        <h1>Zpektra</h1>
-        <p class="tagline">Real-time visuals that move with your music.</p>
-        <button id="btn-login" class="primary">Connect Spotify</button>
-        <p class="fineprint">Requires Spotify Premium. Best in Chrome or Edge.</p>
+        <button id="btn-login-back" class="ghost sm" type="button">Back</button>
+        <p class="eyebrow">Zpektra</p>
+        <h1>Connect Spotify</h1>
+        <p class="tagline">Playback stays in Spotify. Zpektra reads the current track.</p>
+        <button id="btn-login" class="primary" type="button">Connect Spotify</button>
+        <p class="fineprint">Spotify Premium. Chrome or Edge.</p>
+        <p class="legal" data-legal></p>
       </div>
     </section>
 
-    <section id="screen-picker" class="screen hidden">
-      <div class="panel wide">
-        <button class="back-top" id="btn-picker-back">← Back</button>
-        <h2>Choose a visualizer</h2>
-        <div class="picker-scroll">
-          <div id="picker-grid" class="grid"></div>
+    <section id="screen-library" class="screen hidden" aria-label="Library">
+      <div class="library">
+        <header class="library-head">
+          <button id="btn-library-back" class="ghost sm" type="button">Back</button>
+          <div class="library-intro">
+            <p class="eyebrow">Zpektra</p>
+            <h1>Library</h1>
+            <p class="lede">
+              Finished scenes are in the grid. Experiments live in the prototype panel,
+              separate from the set that ships.
+            </p>
+          </div>
+          <button id="btn-logout" class="ghost sm" type="button">Log out</button>
+        </header>
+
+        <div class="library-body">
+          <div>
+            <h2 class="section-label">Visualizers</h2>
+            <div id="release-grid" class="grid"></div>
+          </div>
+          <aside id="proto-panel" class="proto-panel">
+            <h2 class="section-label">Prototypes</h2>
+            <p class="proto-note">Particle Storm, Golden Sigil, and the mesh studies. Rough on purpose, and they can change.</p>
+            <div id="proto-grid" class="grid"></div>
+          </aside>
         </div>
-        <button id="btn-logout" class="ghost">Log out</button>
+
+        <p class="quiet">Drag to orbit 3D scenes, scroll to zoom. H hides the controls, D shows meters, M switches grid and dots.</p>
+        <p class="legal" data-legal></p>
       </div>
     </section>
 
-    <div id="vis-modal" class="modal-overlay hidden">
-      <div class="modal-card">
+    <div id="catalog-modal" class="modal-overlay hidden">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="catalog-title">
         <div class="modal-head">
-          <h2>All visualizers</h2>
-          <button id="btn-modal-close" class="modal-close" title="Close">✕</button>
+          <h2 id="catalog-title">Library</h2>
+          <button id="btn-catalog-close" class="ghost sm" type="button">Close</button>
         </div>
-        <p class="modal-sub">Tap a card to play it. Tap the ☆ to favorite — favorites show on your home screen and dock.</p>
         <div class="modal-scroll">
-          <div id="modal-grid" class="grid"></div>
+          <h3 class="section-label">Visualizers</h3>
+          <div id="catalog-release" class="grid"></div>
+          <section id="catalog-proto-wrap" class="proto-panel proto-panel-wide">
+            <h3 class="section-label">Prototypes</h3>
+            <p class="proto-note">Experiments. Not part of the main set.</p>
+            <div id="catalog-proto" class="grid"></div>
+          </section>
+          <p class="legal" data-legal></p>
         </div>
       </div>
     </div>
 
     <div id="audio-hint" class="hidden">
       <div class="hint-card">
-        <div class="hint-title">Connect an audio source to begin</div>
-        <div class="hint-sub">
-          <b>Best (direct from Spotify):</b> install a free virtual audio cable
-          (Windows: VB-Audio Cable or VoiceMeeter), set it as Spotify's output (or
-          your system output), then choose it as the input below. Clean digital
-          audio, no screen share.
-        </div>
-        <button id="btn-enable-input" class="primary">Enable audio input</button>
-        <div class="hint-or">— or —</div>
-        <button id="btn-share-audio-main" class="ghost">Use screen / tab audio</button>
-        <div class="hint-fine">
-          No motion until real sound is detected. Switch input anytime from the bar
-          below. Press <b>D</b> for live meters.
-        </div>
+        <div class="hint-title">Connect audio</div>
+        <p class="hint-sub">
+          Spotify’s stream can’t be read directly. Use a virtual cable as the input,
+          or share system audio from a screen.
+        </p>
+        <button id="btn-enable-input" class="primary" type="button">Enable audio input</button>
+        <div class="hint-or">or</div>
+        <button id="btn-share-audio-main" class="ghost" type="button">Use screen audio</button>
+        <p class="hint-fine">Nothing moves until sound is actually coming in. Switch the input anytime from Audio.</p>
       </div>
     </div>
 
     <div id="hud" class="hidden">
       <div id="vis-dock"></div>
-
       <div class="hud-bar">
         <div class="hud-track">
           <img id="hud-art" alt="" />
           <div>
-            <div id="hud-title">—</div>
-            <div id="hud-artist" class="muted">—</div>
+            <div id="hud-title">Nothing playing</div>
+            <div id="hud-artist" class="muted">Start a track in Spotify</div>
           </div>
         </div>
         <div class="hud-actions">
-          <span id="hud-audio-state" class="badge">audio: off</span>
-          <select id="audio-source" class="src-select" title="Audio input device">
-            <option value="">Audio input…</option>
-          </select>
-          <select id="analysis-preset" class="src-select" title="How audio drives the visuals">
-            <option value="pulse">Pulse</option>
-            <option value="flux">Flux</option>
-            <option value="groove">Groove</option>
-            <option value="bass">Bass</option>
-            <option value="smooth">Smooth</option>
-          </select>
-          <button id="btn-lyrics" class="ghost" title="Toggle synced lyrics">Lyrics</button>
-          <select id="lyrics-place" class="src-select" title="Lyrics placement">
-            <option value="auto">Auto</option>
-            <option value="bottom">Bottom</option>
-            <option value="top">Top</option>
-            <option value="right">Right</option>
-            <option value="left">Left</option>
-          </select>
-          <button id="btn-share-audio" class="ghost" title="Use screen/tab audio instead">Screen audio</button>
-          <button id="btn-mesh-mode" class="ghost hidden" title="Toggle grid / dots (M)">▦ Grid</button>
-          <button id="btn-colors" class="ghost">Colors</button>
-          <button id="btn-home" class="ghost" title="Back to start">⌂ Home</button>
+          <button id="btn-audio" class="ghost sm" type="button" aria-expanded="false" aria-controls="audio-panel">
+            <span id="audio-dot" class="dot"></span>Audio
+          </button>
+          <button id="btn-lyrics" class="ghost sm" type="button" aria-expanded="false" aria-pressed="false" aria-controls="lyrics-panel">Lyrics</button>
+          <button id="btn-colors" class="ghost sm" type="button" aria-expanded="false" aria-controls="colors-panel">Look</button>
+          <button id="btn-mesh-mode" class="ghost sm hidden" type="button">Grid</button>
+          <button id="btn-home" class="ghost sm" type="button">Home</button>
         </div>
       </div>
     </div>
 
-    <div id="colors-panel" class="hidden">
-      <div class="cp-head">Colors</div>
+    <div id="audio-panel" class="popover hidden" role="dialog" aria-label="Audio">
+      <div class="pop-head">
+        <span>Audio</span>
+        <span id="audio-status" class="pop-status">Off</span>
+      </div>
+      <label class="field">
+        <span>Input</span>
+        <select id="audio-source" class="select"></select>
+      </label>
+      <label class="field">
+        <span>Response</span>
+        <select id="analysis-preset" class="select"></select>
+      </label>
+      <p id="preset-hint" class="hint-line"></p>
+      <div class="pop-actions">
+        <button id="btn-enable-input-menu" class="primary sm" type="button">Enable input</button>
+        <button id="btn-share-audio" class="ghost sm" type="button">Screen audio</button>
+      </div>
+    </div>
+
+    <div id="lyrics-panel" class="popover hidden" role="dialog" aria-label="Lyrics">
+      <div class="pop-head"><span>Lyrics</span></div>
+      <div class="pop-row">
+        <span>Show lyrics</span>
+        <button id="btn-lyrics-toggle" class="ghost sm" type="button">On</button>
+      </div>
+      <label class="check-row" for="lyrics-follow">
+        <input type="checkbox" id="lyrics-follow" />
+        <span>Follow Look colors</span>
+      </label>
+      <label class="field">
+        <span>Placement</span>
+        <select id="lyrics-place" class="select">
+          <option value="auto">Auto</option>
+          <option value="bottom">Bottom</option>
+          <option value="top">Top</option>
+          <option value="right">Right</option>
+          <option value="left">Left</option>
+        </select>
+      </label>
+      <p class="hint-line">Checked follows the Look theme, including Cycle. Unchecked stays white.</p>
+    </div>
+
+    <div id="colors-panel" class="popover hidden" role="dialog" aria-label="Look">
+      <div class="pop-head"><span>Look</span></div>
       <div class="cp-row">
         <label for="color-mode">Mode</label>
-        <select id="color-mode" class="src-select">
-          <option value="album">Album art (default)</option>
+        <select id="color-mode" class="select">
+          <option value="album">Album art</option>
           <option value="custom">Custom</option>
-          <option value="cycle">Cycle (auto)</option>
+          <option value="cycle">Cycle</option>
         </select>
       </div>
-      <div class="cp-row cp-custom">
-        <label>Primary</label>
+      <div class="cp-row cp-custom hidden">
+        <label for="color-primary">Primary</label>
         <input type="color" id="color-primary" value="#22d3ee" />
-        <input type="text" id="hex-primary" class="hex" value="#22d3ee" maxlength="7" />
+        <input type="text" id="hex-primary" class="hex" value="#22d3ee" maxlength="7" spellcheck="false" />
       </div>
-      <div class="cp-row cp-custom">
-        <label>Secondary</label>
+      <div class="cp-row cp-custom hidden">
+        <label for="color-secondary">Secondary</label>
         <input type="color" id="color-secondary" value="#2dd4bf" />
-        <input type="text" id="hex-secondary" class="hex" value="#2dd4bf" maxlength="7" />
+        <input type="text" id="hex-secondary" class="hex" value="#2dd4bf" maxlength="7" spellcheck="false" />
       </div>
-      <div class="cp-row cp-cycle">
-        <label for="cycle-speed">Cycle speed</label>
+      <div class="cp-row cp-cycle hidden">
+        <label for="cycle-speed">Cycle</label>
         <input type="range" id="cycle-speed" min="0" max="100" value="35" />
       </div>
       <div class="cp-sep"></div>

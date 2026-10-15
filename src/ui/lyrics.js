@@ -3,12 +3,10 @@ import { getVisualizer } from '../visualizers/registry.js';
 
 export const LYRICS_ENABLED_KEY = 'zpektra.lyricsEnabled';
 export const LYRICS_PLACE_KEY = 'zpektra.lyricsPlace';
+export const LYRICS_FOLLOW_KEY = 'zpektra.lyricsFollow';
 
 const PLACES = ['auto', 'bottom', 'top', 'right', 'left'];
 
-/**
- * DOM lyrics overlay — placement modes + sync loop.
- */
 export class LyricsPanel {
   constructor() {
     this.root = document.createElement('div');
@@ -30,7 +28,9 @@ export class LyricsPanel {
     this.elStatus = this.root.querySelector('.lyrics-status');
 
     this.enabled = true;
+    this.followTheme = false;
     this.place = 'auto';
+    this._colors = null;
     this.visId = null;
     this.lines = [];
     this.plain = null;
@@ -41,12 +41,14 @@ export class LyricsPanel {
     this._raf = 0;
     this._clock = null;
     this._userOverride = false;
+    this.onStage = false;
 
     try {
       const en = localStorage.getItem(LYRICS_ENABLED_KEY);
       if (en === '0') this.enabled = false;
       const pl = localStorage.getItem(LYRICS_PLACE_KEY);
       if (pl && PLACES.includes(pl)) this.place = pl;
+      if (localStorage.getItem(LYRICS_FOLLOW_KEY) === '1') this.followTheme = true;
     } catch {
       /* ignore */
     }
@@ -59,8 +61,34 @@ export class LyricsPanel {
     this._updateVisibility();
   }
 
+  setOnStage(on) {
+    this.onStage = Boolean(on);
+    if (this.onStage) this.start();
+    else this.stop();
+    this._updateVisibility();
+  }
+
   setClock(clock) {
     this._clock = clock;
+  }
+
+  setColors(colors) {
+    this._colors = colors;
+    this._applyColor();
+  }
+
+  setFollowTheme(on) {
+    this.followTheme = Boolean(on);
+    try {
+      localStorage.setItem(LYRICS_FOLLOW_KEY, this.followTheme ? '1' : '0');
+    } catch {
+      /* ignore */
+    }
+    this._applyColor();
+  }
+
+  followsTheme() {
+    return this.followTheme;
   }
 
   setEnabled(on) {
@@ -142,6 +170,7 @@ export class LyricsPanel {
     if (this._raf) return;
     const loop = () => {
       this._raf = requestAnimationFrame(loop);
+      this._applyColor();
       this._tick();
     };
     this._raf = requestAnimationFrame(loop);
@@ -164,8 +193,17 @@ export class LyricsPanel {
     this.root.classList.add(`place-${slot}`);
   }
 
+  _applyColor() {
+    if (this.followTheme && this._colors) {
+      this.root.style.color = this._colors.themeHex();
+      return;
+    }
+    this.root.style.color = '';
+  }
+
   _updateVisibility() {
     const show =
+      this.onStage &&
       this.enabled &&
       (this.found || this.instrumental || this.elStatus.textContent);
     this.root.classList.toggle('hidden', !show);

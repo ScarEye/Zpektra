@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { Reactor } from './audio/analyser.js';
+import { Reactor } from './audio/reactor.js';
 import { getVisualizer } from './visualizers/registry.js';
 import { Debug } from './ui/debug.js';
 import { ColorController } from './ui/colors.js';
@@ -16,8 +16,8 @@ export class Engine {
     this.palette = this.colors.current();
     this.active = null;
     this.controls = null;
-    this.meshMode = 'wire'; // 'wire' | 'dots' — for visualizers that support setMode()
-    this.rotationSpeed = 0.4; // global multiplier (slider 50 = 1×)
+    this.meshMode = 'wire';
+    this.rotationSpeed = 0.4;
     this._last = performance.now();
     this._running = false;
     this.debug = new Debug();
@@ -64,7 +64,6 @@ export class Engine {
     if (this.active) this.active.setPalette(palette);
   }
 
-  // True when the active visualizer can switch between grid/dots modes.
   supportsMeshMode() {
     return !!(this.active && typeof this.active.setMode === 'function');
   }

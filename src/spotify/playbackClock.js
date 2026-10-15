@@ -1,4 +1,3 @@
-/** Interpolates Spotify progress between NowPlaying polls. */
 export class PlaybackClock {
   constructor() {
     this.progressMs = 0;

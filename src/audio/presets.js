@@ -29,10 +29,6 @@ export const ANALYSIS_PRESETS = [
 export const DEFAULT_PRESET = 'pulse';
 export const PRESET_STORAGE_KEY = 'zpektra.analysisPreset';
 
-/**
- * Map detector outputs onto legacy `beat` (and envelope speeds).
- * @returns {{ beat: number, attack: number, release: number, onsetScale: number }}
- */
 export function applyPreset(presetId, signals) {
   const {
     onset = 0,

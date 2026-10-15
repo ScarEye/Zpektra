@@ -1,4 +1,4 @@
-import { BAND_NAMES } from '../audio/analyser.js';
+import { BAND_NAMES } from '../audio/bands.js';
 
 export class Debug {
   constructor() {
