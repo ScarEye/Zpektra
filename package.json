@@ -5,6 +5,10 @@
   "type": "module",
   "author": "ScarEye",
   "license": "MIT",
+  "engines": {
+    "node": "^18.0.0 || >=20.0.0",
+    "npm": ">=9"
+  },
   "description": "A local browser music visualizer, made for fun in the spirit of Windows XP Media Player. Spotify metadata via PKCE, reactivity from captured audio.",
   "scripts": {
     "dev": "vite",
