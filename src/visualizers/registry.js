@@ -11,6 +11,7 @@ import { Oscilloscope } from './oscilloscope.js';
 import { SphereNet, CubeNet, CylinderNet, CapsuleNet, PyramidNet } from './meshshapes.js';
 import { GoldenSeal } from './goldenseal.js';
 import { Chladni } from './chladni.js';
+import { ChladniSphere } from './chladnisphere.js';
 import { StarryNight } from './starrynight.js';
 import { Dna } from './dna.js';
 
@@ -122,6 +123,15 @@ export const VISUALIZERS = [
     blurb: 'Sand gathers on a large circular plate. The plate stays invisible, and the figure changes with the music.',
     lyricsSlot: 'right',
     create: (renderer) => new Chladni(renderer),
+  },
+  {
+    id: 'chladnisphere',
+    name: 'Chladni Sphere',
+    kind: '3d',
+    tier: 'release',
+    blurb: 'The same sand figures, held on a sphere you can turn. The shell stays invisible, and the shape still follows the sound.',
+    lyricsSlot: 'bottom',
+    create: (renderer) => new ChladniSphere(renderer),
   },
   {
     id: 'starrynight',
