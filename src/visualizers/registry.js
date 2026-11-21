@@ -10,6 +10,7 @@ import { SpikeSphere } from './spikesphere.js';
 import { Oscilloscope } from './oscilloscope.js';
 import { SphereNet, CubeNet, CylinderNet, CapsuleNet, PyramidNet } from './meshshapes.js';
 import { GoldenSeal } from './goldenseal.js';
+import { Chladni } from './chladni.js';
 import { StarryNight } from './starrynight.js';
 import { Dna } from './dna.js';
 
@@ -112,6 +113,15 @@ export const VISUALIZERS = [
     blurb: 'A floor seal that pulses golden light outward, with sparkles on the beat.',
     lyricsSlot: 'bottom',
     create: (renderer) => new GoldenSeal(renderer),
+  },
+  {
+    id: 'chladni',
+    name: 'Chladni Plate',
+    kind: '2d',
+    tier: 'release',
+    blurb: 'Sand gathers on a large circular plate. The plate stays invisible, and the figure changes with the music.',
+    lyricsSlot: 'right',
+    create: (renderer) => new Chladni(renderer),
   },
   {
     id: 'starrynight',

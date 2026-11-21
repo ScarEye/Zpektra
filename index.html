@@ -122,6 +122,11 @@
           </div>
         </div>
         <div class="hud-actions">
+          <label id="chladni-sensitivity" class="sens-slider hidden">
+            <span>Sensitivity</span>
+            <input id="chladni-sens" type="range" min="0" max="1" step="0.01" value="1" aria-label="Sand sensitivity" />
+            <span id="chladni-sens-val">1.00</span>
+          </label>
           <button id="btn-audio" class="ghost sm" type="button" aria-expanded="false" aria-controls="audio-panel">
             <span id="audio-dot" class="dot"></span>Audio
           </button>

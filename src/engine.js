@@ -17,6 +17,7 @@ export class Engine {
     this.active = null;
     this.controls = null;
     this.meshMode = 'wire';
+    this.chladniSensitivity = 1;
     this.rotationSpeed = 0.4;
     this._last = performance.now();
     this._running = false;
@@ -43,6 +44,7 @@ export class Engine {
     vis.setPalette(this.palette);
     vis.resize(window.innerWidth, window.innerHeight);
     if (typeof vis.setMode === 'function') vis.setMode(this.meshMode);
+    if (typeof vis.setSensitivity === 'function') vis.setSensitivity(this.chladniSensitivity);
     this.active = vis;
 
     if (vis.interactive) {
@@ -62,6 +64,15 @@ export class Engine {
   setPalette(palette) {
     this.palette = palette;
     if (this.active) this.active.setPalette(palette);
+  }
+
+  setChladniSensitivity(value) {
+    const n = Number(value);
+    this.chladniSensitivity = Math.min(1, Math.max(0, Number.isFinite(n) ? n : 1));
+    if (this.active && typeof this.active.setSensitivity === 'function') {
+      this.active.setSensitivity(this.chladniSensitivity);
+    }
+    return this.chladniSensitivity;
   }
 
   supportsMeshMode() {

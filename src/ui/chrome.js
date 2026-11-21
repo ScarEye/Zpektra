@@ -4,6 +4,7 @@ import { isHex, normHex } from './colors.js';
 
 const LAST_DEVICE_KEY = 'zpektra.lastInput';
 const COLOR_KEY = 'zpektra.colors';
+const SENS_KEY = 'zpektra.chladni.sensitivity';
 
 const $ = (id) => document.getElementById(id);
 
@@ -13,10 +14,23 @@ const MENUS = [
   ['btn-colors', 'colors-panel'],
 ];
 
+function loadSensitivity() {
+  try {
+    const raw = localStorage.getItem(SENS_KEY);
+    if (raw == null || raw === '') return 1;
+    const n = Number(raw);
+    if (Number.isFinite(n)) return Math.min(1, Math.max(0, n));
+  } catch {
+    /* ignore */
+  }
+  return 1;
+}
+
 export function bindChrome(ctx) {
   const hud = $('hud');
   let lyrics = null;
   let lookBound = false;
+  let chladniSens = loadSensitivity();
 
   function closeMenus(exceptId) {
     for (const [btnId, panelId] of MENUS) {
@@ -54,13 +68,30 @@ export function bindChrome(ctx) {
     }
   }
 
+  function paintSensValue() {
+    const input = $('chladni-sens');
+    const label = $('chladni-sens-val');
+    if (input) input.value = String(chladniSens);
+    if (label) label.textContent = chladniSens.toFixed(2);
+  }
+
+  function paintSensitivity() {
+    const engine = ctx.getEngine();
+    const el = $('chladni-sensitivity');
+    if (!el) return;
+    const on = Boolean(engine?.active && typeof engine.active.setSensitivity === 'function');
+    el.classList.toggle('hidden', !on);
+  }
+
   function paintMesh() {
     const engine = ctx.getEngine();
     const btn = $('btn-mesh-mode');
-    if (!btn) return;
-    const supported = Boolean(engine && engine.supportsMeshMode());
-    btn.classList.toggle('hidden', !supported);
-    if (supported) btn.textContent = engine.meshMode === 'dots' ? 'Dots' : 'Grid';
+    if (btn) {
+      const supported = Boolean(engine && engine.supportsMeshMode());
+      btn.classList.toggle('hidden', !supported);
+      if (supported) btn.textContent = engine.meshMode === 'dots' ? 'Dots' : 'Grid';
+    }
+    paintSensitivity();
   }
 
   function setAudioLive(on) {
@@ -377,6 +408,19 @@ export function bindChrome(ctx) {
     engine.toggleMeshMode();
     paintMesh();
   });
+  paintSensValue();
+  $('chladni-sens')?.addEventListener('input', (e) => {
+    const n = Number(e.target.value);
+    chladniSens = Math.min(1, Math.max(0, Number.isFinite(n) ? n : 1));
+    try {
+      localStorage.setItem(SENS_KEY, String(chladniSens));
+    } catch {
+      /* ignore */
+    }
+    paintSensValue();
+    ctx.getEngine()?.setChladniSensitivity(chladniSens);
+  });
+
   $('btn-home')?.addEventListener('click', () => ctx.onHome());
   $('btn-lyrics-toggle')?.addEventListener('click', () => {
     if (!lyrics) return;
@@ -400,6 +444,7 @@ export function bindChrome(ctx) {
       lyrics.setColors(engine.colors);
       bindLook(engine);
       applyPreset();
+      engine.setChladniSensitivity(chladniSens);
       paintLyrics();
       paintMesh();
     },
